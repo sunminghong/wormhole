@@ -16,8 +16,10 @@ type Wormhole struct {
     dataConnection IConnection
 
     guin TID
-    fromAgentId int
     manager IWormholeManager
+
+    fromId int
+    fromType EWormholeType
 
     receivePacketCallback ReceivePacketFunc
 
@@ -26,10 +28,11 @@ type Wormhole struct {
 
 
 // new Transport object
-func NewWormhole(guin TID,fromAgentId int, manager IWormholeManager) *Wormhole {
+func NewWormhole(guin TID, manager IWormholeManager) *Wormhole {
     wh := &Wormhole {
         guin:           guin,
-        fromAgentId:    fromAgentId,
+        fromId:         0,
+        fromType:       EWORMHOLE_TYPE_CLIENT,
         manager:        manager,
     }
 
@@ -47,8 +50,23 @@ func (wh *Wormhole) SetCloseCallback(cf CommonCallbackFunc) {
 }
 
 
-func (wh *Wormhole) GetFromAgentId() int {
-    return wh.fromAgentId
+func (wh *Wormhole) GetType() EWormholeType {
+    return wh.fromType
+}
+
+
+func (wh *Wormhole) SetType(t EWormholeType) {
+    wh.fromType = t
+}
+
+
+func (wh *Wormhole) SetFromId(id int) {
+    wh.fromId = id
+}
+
+
+func (wh *Wormhole) GetFromId() int {
+    return wh.fromId
 }
 
 
@@ -98,7 +116,7 @@ func (wh *Wormhole) ctrlClosed(id TID) {
 
 
 func (wh *Wormhole) Send(packet *RoutePacket) {
-    if wh.fromAgentId == 0 {
+    if wh.fromType == EWORMHOLE_TYPE_CLIENT {
         packet.Type = EPACKET_TYPE_GENERAL
     }
     wh.dataConnection.Send(packet)

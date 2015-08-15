@@ -37,6 +37,7 @@ const (
     EPACKET_TYPE_DELAY = 2 | 1   //00000011
     EPACKET_TYPE_CLOSE = 4 | 1   //00000101   close a player client
     EPACKET_TYPE_BROADCAST = 6 | 1    //00000111
+
     EPACKET_TYPE_GATE_REGISTER= 8     //00001000
     EPACKET_TYPE_GATE_REMOVE= 10      //00001010 remove a gate client
     EPACKET_TYPE_CLOSED = 12 | 1      //00001100 a player client closed tell to gridserver
@@ -45,6 +46,10 @@ const (
     EPACKET_TYPE_DATAS_COMPRESS = 18            //00010010  to player client connection
 
     EPACKET_TYPE_FORWARD = 20 | 1               //00010101  forward msg to other grid server 
+
+    EPACKET_TYPE_UDP_SERVER = 22
+    EPACKET_TYPE_GUIN = 24
+    EPACKET_TYPE_WORMHOLE_TYPE = 26
 )
 
 
@@ -76,8 +81,6 @@ type RoutePacket struct {
 }
 
 // data route layer end -----------------------------------------------
-
-
 
 
 
@@ -143,8 +146,22 @@ const (
     ECONN_STATE_SUSPEND = 2
 )
 
+
+type EWormholeType byte
+const (
+    EWORMHOLE_TYPE_CLIENT = 0
+    EWORMHOLE_TYPE_GAMESERVER = 1
+    EWORMHOLE_TYPE_AGENT = 2
+    EWORMHOLE_TYPE_CONSOLE = 3
+)
+
+
 type IWormhole interface {
-    GetFromAgentId() int
+    GetType() EWormholeType
+    SetType(t EWormholeType)
+
+    GetFromId() int
+    SetFromId(id int)
 
     GetGuin() TID
 
