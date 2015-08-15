@@ -15,6 +15,9 @@ package wormhole
 //common define
 type TID uint32
 const TIDSize = 4
+func (t TID) toI() uint32 {
+    return uint32(t)
+}
 
 
 type CommonCallbackFunc func (id TID)
@@ -27,21 +30,21 @@ type ReceivePacketFunc func (dataFromId TID, dps []*RoutePacket)
 
 
 // data route layer , route packet define
-type TRouteType byte
+type ERouteType byte
 const (
     //0bit =1 表示为需要中转的数据
-    TPACKET_TYPE_GENERAL = 0
-    TPACKET_TYPE_DELAY = 2 | 1   //00000011
-    TPACKET_TYPE_CLOSE = 4 | 1   //00000101   close a player client
-    TPACKET_TYPE_BROADCAST = 6 | 1    //00000111
-    TPACKET_TYPE_GATE_REGISTER= 8     //00001000
-    TPACKET_TYPE_GATE_REMOVE= 10      //00001010 remove a gate client
-    TPACKET_TYPE_CLOSED = 12 | 1      //00001100 a player client closed tell to gridserver
-    TPACKET_TYPE_DELAY_DATAS = 14 | 1 //00001111 
-    TPACKET_TYPE_DELAY_DATAS_COMPRESS = 16 | 1  //00010001
-    TPACKET_TYPE_DATAS_COMPRESS = 18            //00010010  to player client connection
+    EPACKET_TYPE_GENERAL = 0
+    EPACKET_TYPE_DELAY = 2 | 1   //00000011
+    EPACKET_TYPE_CLOSE = 4 | 1   //00000101   close a player client
+    EPACKET_TYPE_BROADCAST = 6 | 1    //00000111
+    EPACKET_TYPE_GATE_REGISTER= 8     //00001000
+    EPACKET_TYPE_GATE_REMOVE= 10      //00001010 remove a gate client
+    EPACKET_TYPE_CLOSED = 12 | 1      //00001100 a player client closed tell to gridserver
+    EPACKET_TYPE_DELAY_DATAS = 14 | 1 //00001111 
+    EPACKET_TYPE_DELAY_DATAS_COMPRESS = 16 | 1  //00010001
+    EPACKET_TYPE_DATAS_COMPRESS = 18            //00010010  to player client connection
 
-    TPACKET_TYPE_FORWARD = 20 | 1               //00010101  forward msg to other grid server 
+    EPACKET_TYPE_FORWARD = 20 | 1               //00010101  forward msg to other grid server 
 )
 
 
@@ -67,7 +70,7 @@ type IRoutePack interface {
 // define a struct or class of rec transport connection
 // datapacket = mask1(byte) | mask2(byte) | packetType(byte) | datalength(int32) | data| guin
 type RoutePacket struct {
-    Type  TRouteType
+    Type  ERouteType
     Guin TID
     Data  []byte
 }
@@ -79,10 +82,10 @@ type RoutePacket struct {
 
 
 // connection define
-type TConnType byte
+type EConnType byte
 const(
-    CONN_TYPE_CTRL = 0
-    CONN_TYPE_DATA = 1
+    ECONN_TYPE_CTRL = 0
+    ECONN_TYPE_DATA = 1
 )
 
 /*
@@ -96,11 +99,6 @@ type IStream interface {
 */
 
 type IConnection interface {
-    /*
-    SetRemoteAddress(host string, port int16)
-    GetRemoteAddress() (host string, port int16)
-    */
-
     Connect(addr string) bool
     Close()
     SetCloseCallback(cf CommonCallbackFunc)
@@ -109,11 +107,10 @@ type IConnection interface {
     //SetId(int connectId)
     GetId() TID
 
-    GetType() TConnType
-    SetType(t TConnType)
+    GetType() EConnType
+    SetType(t EConnType)
 
-    //Send(buf []byte)
-    Send(dp *RoutePacket)
+    Send(packet *RoutePacket)
 
     //SetReceiveCallback(receive ReceiveFunc)
     SetReceivePacketCallback(receive ReceivePacketFunc)
@@ -132,45 +129,51 @@ type IConnection interface {
 // wormhole define
 
 type GUIN interface {
-    //配置进行guin计算的key，用于验算和随机
-    SetKey(hashkey int)
-
     //生成一个guin
-    GenerateGuin(agentId int, wormholdId int) TID
+    GenerateGuin(agentId int) TID
 
-    Check(guin TID) bool
+    Parse(guin TID) (agentId int, id int, check int)
 }
 
 
-type TWormholeState byte
+type EWormholeState byte
 const (
-    CONN_STATE_ACTIVE = 0
-    CONN_STATE_DISCONNTCT = 1
-    CONN_STATE_SUSPEND = 2
+    ECONN_STATE_ACTIVE = 0
+    ECONN_STATE_DISCONNTCT = 1
+    ECONN_STATE_SUSPEND = 2
 )
 
-type wormhole interface {
-    GetGuin() TID
-    AddConnection(conn IConnection, t TConnType)
+type IWormhole interface {
+    GetFromAgentId() int
 
-    Send(paket *RoutePacket)
+    GetGuin() TID
+
+    AddConnection(conn IConnection, t EConnType)
+
+    GetState() EWormholeState
+    SetState(state EWormholeState)
+
+    Send(packet *RoutePacket)
     Broadcast(packet *RoutePacket)
-    SetReceiveCallback(receive ReceivePacketFunc)
+
+    SetReceivePacketCallback(receive ReceivePacketFunc)
 
     Close()
-    CloseCallback(cf CommonCallbackFunc)
+    SetCloseCallback(cf CommonCallbackFunc)
+
+    GetManager() IWormholeManager
 }
 
 type IWormholeManager interface {
+    AddWormhole(wh IWormhole)
 
-    Send(guin TID, buf []byte)
-    Broadcast(buf []byte)
+    Send(guin TID, packet *RoutePacket)
+    Broadcast(packet *RoutePacket)
 
     Close(guin TID)
     CloseAll()
 }
 
 // wormhole define end -----------------------------------------------
-
 
 

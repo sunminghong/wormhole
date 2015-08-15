@@ -156,7 +156,7 @@ func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
 
         data,size := cs.Read(dpSize)
         if size > 0 {
-            dp := &RoutePacket{Type:TRouteType(dataType)}
+            dp := &RoutePacket{Type:ERouteType(dataType)}
 
             if dataType & 1 == 1 {
                 dp.Guin = TID(d.Endianer.Uint32(data[dpSize-4:]))
@@ -213,7 +213,6 @@ func (d *RoutePack) Pack(dp *RoutePacket) []byte {
     head := d.packHeader(dp)
 
     ilen := len(dp.Data)
-    
     if dp.Type & 1 == 1 {
         ilen += TIDSize
     }
@@ -226,6 +225,7 @@ func (d *RoutePack) Pack(dp *RoutePacket) []byte {
     }
     return buf
 }
+
 
 //对数据进行封包
 func (d *RoutePack) PackWrite(write WriteFunc,dp *RoutePacket) {

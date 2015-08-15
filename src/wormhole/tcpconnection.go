@@ -17,7 +17,7 @@ import (
 // Connection  
 type TcpConnection struct {
     read_buffer_size int
-    connectionType TConnType
+    connectionType EConnType
     id TID
     conn net.Conn
 
@@ -136,15 +136,15 @@ func (c *TcpConnection) SetCloseCallback(cf CommonCallbackFunc) {
     c.closeCallback = cf
 }
 
-func (c *TcpConnection) SetRoutePacket(route IRoutePack) {
+func (c *TcpConnection) SetRoutePack(route IRoutePack) {
     c.routePack = route
 }
 
-func (c *TcpConnection) GetType() TConnType {
+func (c *TcpConnection) GetType() EConnType {
     return c.connectionType
 }
 
-func (c *TcpConnection) SetType(t TConnType) {
+func (c *TcpConnection) SetType(t EConnType) {
     c.connectionType = t
 }
 
