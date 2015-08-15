@@ -18,14 +18,21 @@ type WormholeManager struct {
     wormholes map[TID]IWormhole
 
     wmlock *sync.RWMutex
+
+    broadcastChan chan *DataPacket
+    fromType  EWormholeType
 }
 
 
-func NewWormholeManager() *WormholeManager {
+func NewWormholeManager(fromType EWormholeType, broadcast_chan_num int) *WormholeManager {
     wm := &WormholeManager {
         wmlock:        new(sync.RWMutex),
         wormholes:      make(map[TID]IWormhole),
+        fromType:       fromType,
     }
+
+    wm.broadcastChan = make(chan *DataPacket, broadcast_chan_num)
+    go wm.broadcastHandler(wm.broadcastChan)
 
     return wm
 }
@@ -47,7 +54,6 @@ func (wm *WormholeManager) Remove(guin TID)  {
 }
 
 
-
 func (wm *WormholeManager) Send(guin TID, data []byte) {
     if wh, ok := wm.wormholes[guin];ok {
         packet := &RoutePacket {
@@ -55,6 +61,7 @@ func (wm *WormholeManager) Send(guin TID, data []byte) {
             Guin:   guin,
             Data:   data,
         }
+
         wh.Send(packet)
     }
 }
@@ -62,16 +69,33 @@ func (wm *WormholeManager) Send(guin TID, data []byte) {
 
 func (wm *WormholeManager) Broadcast(guin TID, data []byte) {
     packet := &RoutePacket {
-        Type:   EPACKET_TYPE_BROADCAST,
+        Type:   EPACKET_TYPE_GENERAL,
         Guin:   guin,
         Data:   data,
     }
 
-    wm.wmlock.Lock()
-    defer wm.wmlock.Unlock()
+    if wm.fromType == EWORMHOLE_TYPE_AGENT {
+        packet.Type = EPACKET_TYPE_BROADCAST
+    }
 
-    for _, wh := range wm.wormholes {
-        wh.Send(packet)
+    wm.broadcastChan <- packet
+}
+
+
+func (wm *WormholdManager) broadcastHandler(broadcastChan <-chan *DataPacket) {
+    for {
+        packet := <-broadcastChan
+
+        for _, wh := range wm.wormholes {
+            wh.Send(packet)
+        }
+    }
+}
+
+
+func (wm *WormholeManager) Remove(guin TID) {
+    if wh, ok := wm.wormholes[guin];ok {
+        wm.Remove(guin)
     }
 }
 
@@ -79,9 +103,8 @@ func (wm *WormholeManager) Broadcast(guin TID, data []byte) {
 func (wm *WormholeManager) Close(guin TID) {
     if wh, ok := wm.wormholes[guin];ok {
         wh.Close()
+        wm.Remove(guin)
     }
-
-    wm.Remove(guin)
 }
 
 
@@ -95,3 +118,6 @@ func (wm *WormholeManager) CloseAll() {
 }
 
 
+func (wm *WormholeManager) Lenght() {
+    return len(wm.wormholes)
+}

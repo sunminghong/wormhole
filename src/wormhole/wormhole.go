@@ -116,9 +116,20 @@ func (wh *Wormhole) ctrlClosed(id TID) {
 
 
 func (wh *Wormhole) Send(packet *RoutePacket) {
-    if wh.fromType == EWORMHOLE_TYPE_CLIENT {
-        packet.Type = EPACKET_TYPE_GENERAL
+    wh.dataConnection.Send(packet)
+}
+
+
+func (wh *Wormhole) Send(guin TID, data []byte) {
+    packet := &RoutePacket {
+        Type:   EPACKET_TYPE_GENERAL,
+        Guin:   guin,
+        Data:   data,
     }
+    if wh.fromType == EWORMHOLE_TYPE_AGENT {
+        packet.Type = EPACKET_TYPE_DELAY
+    }
+
     wh.dataConnection.Send(packet)
 }
 

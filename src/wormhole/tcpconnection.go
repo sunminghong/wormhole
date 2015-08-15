@@ -79,14 +79,14 @@ func (c *TcpConnection) Connect(addr string) bool {
     c.conn = conn
 
     //创建go的线程 使用Goroutine
-    go c.transportSender()
-    go c.transportReader()
+    go c.ConnSender()
+    go c.ConnReader()
 
     gts.Info("be connected to grid ", addr)
     return true
 }
 
-func (c *TcpConnection) transportReader() {
+func (c *TcpConnection) ConnReader() {
     buffer := make([]byte, c.read_buffer_size)
     for {
         bytesRead, err := c.conn.Read(buffer)
@@ -96,11 +96,11 @@ func (c *TcpConnection) transportReader() {
             break
         }
 
-        //gts.Trace("pool transportReader read to buff:", bytesRead)
-        gts.Trace("pool transportReader read to buff:",bytesRead)
+        //gts.Trace("pool ConnReader read to buff:", bytesRead)
+        gts.Trace("pool ConnReader read to buff:",bytesRead)
         c.Stream.Write(buffer[0:bytesRead])
 
-        gts.Trace("tpool transportReader Buff:%d", len(c.Stream.Bytes()))
+        gts.Trace("tpool ConnReader Buff:%d", len(c.Stream.Bytes()))
         n, dps := c.routePack.Fetch(c)
         gts.Trace("fetch message number", n)
         if n > 0 {
@@ -110,11 +110,11 @@ func (c *TcpConnection) transportReader() {
     //Log("TransportReader stopped for ", transport.Cid)
 }
 
-func (c *TcpConnection) transportSender() {
+func (c *TcpConnection) ConnSender() {
     for {
         select {
         case dp := <-c.outgoing:
-            gts.Trace("clientpool transportSender:dp.type=%v,dp.data=% X",dp.Type, dp.Data)
+            gts.Trace("clientpool ConnSender:dp.type=%v,dp.data=% X",dp.Type, dp.Data)
             c.routePack.PackWrite(c.conn.Write,dp)
 
         case <-c.quit:

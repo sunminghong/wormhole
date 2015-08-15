@@ -15,9 +15,12 @@ package wormhole
 //common define
 type TID uint32
 const TIDSize = 4
+const MAX_CONNECTIONS = 0x3fff -1
+
 func (t TID) toI() uint32 {
     return uint32(t)
 }
+
 
 
 type CommonCallbackFunc func (id TID)
@@ -171,6 +174,7 @@ type IWormhole interface {
     SetState(state EWormholeState)
 
     Send(packet *RoutePacket)
+    Send(guin TID, data []byte)
     Broadcast(packet *RoutePacket)
 
     SetReceivePacketCallback(receive ReceivePacketFunc)
@@ -194,3 +198,11 @@ type IWormholeManager interface {
 // wormhole define end -----------------------------------------------
 
 
+
+// wormhole tcp server define
+
+type ITcpServer interface {
+
+}
+
+// wormhole tcp server define ----------------------------------------
