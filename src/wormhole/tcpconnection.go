@@ -18,16 +18,15 @@ import (
 type TcpConnection struct {
     read_buffer_size int
     connectionType EConnType
-    id TID
+    id int
     conn net.Conn
 
-    Stream *gts.RWStream
+    stream *gts.RWStream
     DPSize  int
     RouteType byte
 
-    routePack IRoutePack
-
-    receivePacketCallback ReceivePacketFunc
+    //receivePacketCallback ReceivePacketFunc
+    receiveCallback ReceiveFunc
     closeCallback CommonCallbackFunc
 
     //需要输出的数据包的channel
@@ -37,31 +36,42 @@ type TcpConnection struct {
     outgoingBytes chan []byte
 
     quit chan bool
+    Quit chan bool
 }
 
 
 // new Transport object
-func NewTcpConnection(newcid TID, conn net.Conn, routepack IRoutePack) *TcpConnection {
+func NewTcpConnection(newcid int, conn net.Conn, endian int) *TcpConnection {
     c := &TcpConnection {
         id:      newcid,
         conn:     conn,
-        routePack: routepack,
 
         outgoing: make(chan *RoutePacket, 1),
         outgoingBytes: make(chan []byte),
         quit:     make(chan bool),
+        Quit:     make(chan bool),
 
-        Stream:   gts.NewRWStream(1024,routepack.GetEndian()),
+        stream:   gts.NewRWStream(1024, endian),
     }
 
-    c.Stream.Reset()
+    c.stream.Reset()
+
+    //创建go的线程 使用Goroutine
+    go c.ConnSender()
+    go c.ConnReader()
 
     return c
 }
 
-func (c *TcpConnection) GetId() TID {
+func (c *TcpConnection) GetId() int {
     return c.id
 }
+
+
+func (c *TcpConnection) GetStream() IStream {
+    return c.stream
+}
+
 
 func (c *TcpConnection) Connect(addr string) bool {
     gts.Info("connect to grid:", addr)
@@ -74,15 +84,19 @@ func (c *TcpConnection) Connect(addr string) bool {
         gts.Info("pool dial to %s is ok. ", addr)
     }
 
-    defer conn.Close()
+    go func() {
+        defer conn.Close()
 
-    c.conn = conn
+        c.conn = conn
 
-    //创建go的线程 使用Goroutine
-    go c.ConnSender()
-    go c.ConnReader()
+        //创建go的线程 使用Goroutine
+        go c.ConnSender()
+        go c.ConnReader()
 
-    gts.Info("be connected to grid ", addr)
+        gts.Info("be connected to grid ", addr)
+
+        <-c.Quit
+    }()
     return true
 }
 
@@ -98,14 +112,16 @@ func (c *TcpConnection) ConnReader() {
 
         //gts.Trace("pool ConnReader read to buff:", bytesRead)
         gts.Trace("pool ConnReader read to buff:",bytesRead)
-        c.Stream.Write(buffer[0:bytesRead])
+        c.stream.Write(buffer[0:bytesRead])
+        c.receiveCallback(c)
 
-        gts.Trace("tpool ConnReader Buff:%d", len(c.Stream.Bytes()))
-        n, dps := c.routePack.Fetch(c)
-        gts.Trace("fetch message number", n)
-        if n > 0 {
-            c.receivePacketCallback(c.id, dps)
-        }
+        //gts.Trace("tpool ConnReader Buff:%d", len(c.stream.Bytes()))
+
+        //n, dps := c.routePack.Fetch(c)
+        //gts.Trace("fetch message number", n)
+        //if n > 0 {
+            //c.receivePacketCallback(c.id, dps)
+        //}
     }
     //Log("TransportReader stopped for ", transport.Cid)
 }
@@ -113,9 +129,11 @@ func (c *TcpConnection) ConnReader() {
 func (c *TcpConnection) ConnSender() {
     for {
         select {
-        case dp := <-c.outgoing:
-            gts.Trace("clientpool ConnSender:dp.type=%v,dp.data=% X",dp.Type, dp.Data)
-            c.routePack.PackWrite(c.conn.Write,dp)
+        //case dp := <-c.outgoing:
+            //gts.Trace("clientpool ConnSender:dp.type=%v,dp.data=% X",dp.Type, dp.Data)
+            ////c.routePack.PackWrite(c.conn.Write,dp)
+        case bytes := <-c.outgoingBytes:
+            c.conn.Write(bytes)
 
         case <-c.quit:
             //Log("Transport ", transport.Cid, " quitting")
@@ -128,17 +146,22 @@ func (c *TcpConnection) ConnSender() {
 }
 
 
-func (c *TcpConnection) SetReceivePacketCallback(cf ReceivePacketFunc)  {
-    c.receivePacketCallback = cf
+//func (c *TcpConnection) SetReceivePacketCallback(cf ReceivePacketFunc)  {
+    //c.receivePacketCallback = cf
+//}
+
+
+func (c *TcpConnection) SetReceiveCallback(cf ReceiveFunc)  {
+    c.receiveCallback = cf
 }
 
 func (c *TcpConnection) SetCloseCallback(cf CommonCallbackFunc) {
     c.closeCallback = cf
 }
 
-func (c *TcpConnection) SetRoutePack(route IRoutePack) {
-    c.routePack = route
-}
+//func (c *TcpConnection) SetRoutePack(route IRoutePack) {
+    //c.routePack = route
+//}
 
 func (c *TcpConnection) GetType() EConnType {
     return c.connectionType
@@ -153,8 +176,16 @@ func (c *TcpConnection) Close() {
     c.conn.Close()
 }
 
+
+/*
 func (c *TcpConnection) Send(dp *RoutePacket) {
     c.outgoing <- dp
+}
+*/
+
+
+func (c *TcpConnection) Send(data []byte) {
+    c.outgoingBytes <- data
 }
 
 

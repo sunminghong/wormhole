@@ -22,11 +22,7 @@ func (t TID) toI() uint32 {
 }
 
 
-
-type CommonCallbackFunc func (id TID)
-
-type ReceiveFunc func (dataFromId TID, data []byte)
-type ReceivePacketFunc func (dataFromId TID, dps []*RoutePacket)
+type CommonCallbackFunc func (id int)
 
 
 //common define end -----------------------------------------------
@@ -51,8 +47,7 @@ const (
     EPACKET_TYPE_FORWARD = 20 | 1               //00010101  forward msg to other grid server 
 
     EPACKET_TYPE_UDP_SERVER = 22
-    EPACKET_TYPE_GUIN = 24
-    EPACKET_TYPE_WORMHOLE_TYPE = 26
+    EPACKET_TYPE_HELLO = 24  //guin，data里面为发送方类型（如是ageng，client，gameserver）
 )
 
 
@@ -94,15 +89,18 @@ const(
     ECONN_TYPE_DATA = 1
 )
 
-/*
+
 type IStream interface {
     GetPos() int
     Len() int
-    Read(count int)
+    Read(count int) ([]byte, int)
     SetPos(int)
     Reset()
 }
-*/
+
+
+type ReceiveFunc func (conn IConnection)
+
 
 type IConnection interface {
     Connect(addr string) bool
@@ -110,16 +108,19 @@ type IConnection interface {
     SetCloseCallback(cf CommonCallbackFunc)
 
     //connId 比如tcp socketid or udp socketid
-    //SetId(int connectId)
-    GetId() TID
+    //SetId(TID connectId)
+    GetId() int
+
+    GetStream() IStream
 
     GetType() EConnType
     SetType(t EConnType)
 
-    Send(packet *RoutePacket)
+    Send(data []byte)
+    //Send(packet *RoutePacket)
 
-    //SetReceiveCallback(receive ReceiveFunc)
-    SetReceivePacketCallback(receive ReceivePacketFunc)
+    SetReceiveCallback(receive ReceiveFunc)
+    //SetReceivePacketCallback(receive ReceivePacketFunc)
 }
 // connection define end -----------------------------------------------
 
@@ -159,9 +160,19 @@ const (
 )
 
 
+type EServerType byte
+const (
+    ESERVER_TYPE_GAMESERVER = 1
+    ESERVER_TYPE_AGENT = 2
+    ESERVER_TYPE_CONSOLE = 3
+)
+
+type ReceivePacketFunc func (wh IWormhole, dps []*RoutePacket)
+
+
 type IWormhole interface {
-    GetType() EWormholeType
-    SetType(t EWormholeType)
+    GetFromType() EWormholeType
+    SetFromType(t EWormholeType)
 
     GetFromId() int
     SetFromId(id int)
@@ -173,11 +184,14 @@ type IWormhole interface {
     GetState() EWormholeState
     SetState(state EWormholeState)
 
-    Send(packet *RoutePacket)
+    SendRaw(data []byte)
+    SendPacket(packet *RoutePacket)
     Send(guin TID, data []byte)
-    Broadcast(packet *RoutePacket)
+    Broadcast(guin TID, data []byte)
 
-    SetReceivePacketCallback(receive ReceivePacketFunc)
+    //SetReceivePacketCallback(receive ReceivePacketFunc)
+
+    ProcessPackets(packets []*RoutePacket)
 
     Close()
     SetCloseCallback(cf CommonCallbackFunc)
@@ -186,13 +200,16 @@ type IWormhole interface {
 }
 
 type IWormholeManager interface {
-    AddWormhole(wh IWormhole)
+    Add(wh IWormhole)
+    Get(guin TID) (IWormhole,bool)
 
-    Send(guin TID, packet *RoutePacket)
-    Broadcast(packet *RoutePacket)
+    Send(guin TID, data []byte)
+    Broadcast(guin TID, data []byte)
 
     Close(guin TID)
     CloseAll()
+
+    Length() int
 }
 
 // wormhole define end -----------------------------------------------

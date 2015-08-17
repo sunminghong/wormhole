@@ -21,27 +21,38 @@ type Wormhole struct {
     fromId int
     fromType EWormholeType
 
-    receivePacketCallback ReceivePacketFunc
+    state EWormholeState
+
+    routePack IRoutePack
+    //receivePacketCallback ReceivePacketFunc
 
     closeCallback CommonCallbackFunc
 }
 
 
 // new Transport object
-func NewWormhole(guin TID, manager IWormholeManager) *Wormhole {
+func NewWormhole(guin TID, manager IWormholeManager, routepack IRoutePack) *Wormhole {
     wh := &Wormhole {
         guin:           guin,
         fromId:         0,
         fromType:       EWORMHOLE_TYPE_CLIENT,
         manager:        manager,
+        routePack:      routepack,
     }
 
     return wh
 }
 
 
+/*
 func (wh *Wormhole) SetReceivePacketCallback(cf ReceivePacketFunc)  {
     wh.receivePacketCallback = cf
+}
+*/
+
+
+func (c *Wormhole) ProcessPackets(dps []*RoutePacket) {
+    print("wormhole don't implent")
 }
 
 
@@ -50,12 +61,12 @@ func (wh *Wormhole) SetCloseCallback(cf CommonCallbackFunc) {
 }
 
 
-func (wh *Wormhole) GetType() EWormholeType {
+func (wh *Wormhole) GetFromType() EWormholeType {
     return wh.fromType
 }
 
 
-func (wh *Wormhole) SetType(t EWormholeType) {
+func (wh *Wormhole) SetFromType(t EWormholeType) {
     wh.fromType = t
 }
 
@@ -75,20 +86,32 @@ func (wh *Wormhole) GetGuin() TID {
 }
 
 
+func (wh *Wormhole) GetState() EWormholeState {
+    return wh.state
+}
+
+
+func (wh *Wormhole) SetState(state EWormholeState) {
+    wh.state = state
+}
+
+
 func (wh *Wormhole) AddConnection(conn IConnection, t EConnType) {
-    conn.SetReceivePacketCallback(wh.receivePacketCallback)
+    //conn.SetReceivePacketCallback(wh.receivePacketCallback)
+    conn.SetReceiveCallback(wh.receiveBytes)
 
     if t == ECONN_TYPE_CTRL {
-        if wh.ctrlConnection != nil {
-            wh.dataConnection = wh.ctrlConnection
-            conn.SetCloseCallback(wh.dataClosed)
-        }
+        //if wh.ctrlConnection != nil {
+            //wh.dataConnection = wh.ctrlConnection
+            //conn.SetCloseCallback(wh.dataClosed)
+        //}
 
-        if wh.dataConnection == nil {
-            wh.dataConnection = conn
-            conn.SetCloseCallback(wh.dataClosed)
-        }
+        //if wh.dataConnection == nil {
+            //wh.dataConnection = conn
+            //conn.SetCloseCallback(wh.dataClosed)
+        //}
 
+        wh.dataConnection = wh.ctrlConnection
         wh.ctrlConnection = conn
         conn.SetCloseCallback(wh.ctrlClosed)
     } else {
@@ -103,20 +126,43 @@ func (wh *Wormhole) AddConnection(conn IConnection, t EConnType) {
 }
 
 
-func (wh *Wormhole) dataClosed(id TID) {
+func (wh *Wormhole) receiveBytes(conn IConnection) {
+    n, dps := wh.routePack.Fetch(conn)
+    if n > 0 {
+        //wh.receivePacketCallback(wh, dps)
+        wh.ProcessPackets(dps)
+    }
+}
+
+
+func (wh *Wormhole) dataClosed(id int) {
     wh.dataConnection = nil
 }
 
 
-func (wh *Wormhole) ctrlClosed(id TID) {
+func (wh *Wormhole) ctrlClosed(id int) {
     wh.dataConnection = nil
     wh.ctrlConnection = nil
-    wh.closeCallback(wh.guin)
+
+    wh.closeCallback(int(wh.guin))
 }
 
 
-func (wh *Wormhole) Send(packet *RoutePacket) {
-    wh.dataConnection.Send(packet)
+func (wh *Wormhole) SendPacket(packet *RoutePacket) {
+    bytes := wh.routePack.Pack(packet)
+    wh.dataConnection.Send(bytes)
+}
+
+
+/*
+func (wh *Wormhole) Broadcast(packet *RoutePacket) {
+    wh.manager.Broadcast(packet)
+}
+*/
+
+
+func (wh *Wormhole) SendRaw(raw []byte) {
+    wh.dataConnection.Send(raw)
 }
 
 
@@ -130,12 +176,19 @@ func (wh *Wormhole) Send(guin TID, data []byte) {
         packet.Type = EPACKET_TYPE_DELAY
     }
 
-    wh.dataConnection.Send(packet)
+    bytes := wh.routePack.Pack(packet)
+    wh.dataConnection.Send(bytes)
 }
 
 
-func (wh *Wormhole) Broadcast(packet *RoutePacket) {
-    wh.manager.Broadcast(packet)
+func (wh *Wormhole) Broadcast(guin TID, data []byte) {
+    //packet := &RoutePacket {
+        //Type:   EPACKET_TYPE_BROADCAST,
+        //Guin:   guin,
+        //Data:   data,
+    //}
+
+    wh.manager.Broadcast(guin, data)
 }
 
 

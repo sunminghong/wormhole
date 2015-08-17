@@ -19,19 +19,21 @@ type WormholeManager struct {
 
     wmlock *sync.RWMutex
 
-    broadcastChan chan *DataPacket
+    broadcastChan chan *RoutePacket
     fromType  EWormholeType
+    routePack IRoutePack
 }
 
 
-func NewWormholeManager(fromType EWormholeType, broadcast_chan_num int) *WormholeManager {
+func NewWormholeManager(routepack IRoutePack, broadcast_chan_num int, fromType EWormholeType) *WormholeManager {
     wm := &WormholeManager {
         wmlock:        new(sync.RWMutex),
         wormholes:      make(map[TID]IWormhole),
         fromType:       fromType,
+        routePack:      routepack,
     }
 
-    wm.broadcastChan = make(chan *DataPacket, broadcast_chan_num)
+    wm.broadcastChan = make(chan *RoutePacket, broadcast_chan_num)
     go wm.broadcastHandler(wm.broadcastChan)
 
     return wm
@@ -50,60 +52,19 @@ func (wm *WormholeManager) Remove(guin TID)  {
     wm.wmlock.Lock()
     defer wm.wmlock.Unlock()
 
-    delete(wm.wormholes, guin)
-}
-
-
-func (wm *WormholeManager) Send(guin TID, data []byte) {
-    if wh, ok := wm.wormholes[guin];ok {
-        packet := &RoutePacket {
-            Type:   EPACKET_TYPE_DELAY,
-            Guin:   guin,
-            Data:   data,
-        }
-
-        wh.Send(packet)
-    }
-}
-
-
-func (wm *WormholeManager) Broadcast(guin TID, data []byte) {
-    packet := &RoutePacket {
-        Type:   EPACKET_TYPE_GENERAL,
-        Guin:   guin,
-        Data:   data,
-    }
-
-    if wm.fromType == EWORMHOLE_TYPE_AGENT {
-        packet.Type = EPACKET_TYPE_BROADCAST
-    }
-
-    wm.broadcastChan <- packet
-}
-
-
-func (wm *WormholdManager) broadcastHandler(broadcastChan <-chan *DataPacket) {
-    for {
-        packet := <-broadcastChan
-
-        for _, wh := range wm.wormholes {
-            wh.Send(packet)
-        }
-    }
-}
-
-
-func (wm *WormholeManager) Remove(guin TID) {
-    if wh, ok := wm.wormholes[guin];ok {
-        wm.Remove(guin)
+    if _, ok := wm.wormholes[guin];ok {
+        delete(wm.wormholes, guin)
     }
 }
 
 
 func (wm *WormholeManager) Close(guin TID) {
+    wm.wmlock.Lock()
+    defer wm.wmlock.Unlock()
+
     if wh, ok := wm.wormholes[guin];ok {
         wh.Close()
-        wm.Remove(guin)
+        delete(wm.wormholes, guin)
     }
 }
 
@@ -118,6 +79,49 @@ func (wm *WormholeManager) CloseAll() {
 }
 
 
-func (wm *WormholeManager) Lenght() {
+func (wm *WormholeManager) Send(guin TID, data []byte) {
+    if wh, ok := wm.wormholes[guin];ok {
+        /*
+        packet := &RoutePacket {
+            Type:   EPACKET_TYPE_GENERAL,
+            Guin:   guin,
+            Data:   data,
+        }
+        if wm.fromType == EWORMHOLE_TYPE_AGENT {
+            packet.Type = EPACKET_TYPE_DELAY
+        }
+        wh.Send(packet)
+        */
+        wh.Send(guin, data)
+    }
+}
+
+
+func (wm *WormholeManager) Broadcast(guin TID, data []byte) {
+    packet := &RoutePacket {
+        Type:   EPACKET_TYPE_BROADCAST,
+        Guin:   guin,
+        Data:   data,
+    }
+
+    wm.broadcastChan <- packet
+}
+
+
+func (wm *WormholeManager) broadcastHandler(broadcastChan <-chan *RoutePacket) {
+    for {
+        packet := <-broadcastChan
+        data := wm.routePack.Pack(packet)
+
+        for _, wh := range wm.wormholes {
+            wh.SendRaw(data)
+        }
+    }
+}
+
+
+
+func (wm *WormholeManager) Length() int {
     return len(wm.wormholes)
 }
+

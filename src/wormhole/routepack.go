@@ -28,7 +28,7 @@ type RoutePack struct {
     Endianer gts.IEndianer
 }
 
-func NewRoutePack(endian int ) *RoutePack{
+func NewRoutePack(endian int ) *RoutePack {
     dg := &RoutePack{}
 
     dg.SetEndian(endian)
@@ -79,8 +79,8 @@ func (d *RoutePack) Fetch(c IConnection) (n int, dps []*RoutePacket) {
 func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
     dps = []*RoutePacket{}
 
-    c:= ci.(*TcpConnection)
-    cs := c.Stream
+    c := ci.(*TcpConnection)
+    cs := c.GetStream()
     ilen := cs.Len()
     if ilen == 0 {
         return
