@@ -31,25 +31,12 @@ import (
 
 
 type UdpServer struct {
-    Name string
-    ServerId int
+    *BaseServer
 
-    ServerType EServerType
-
-    maxConnections int
-    newConn NewUdpConnectionFunc
-    routepack   IRoutePack
-    //endianer        gts.IEndianer
-
-    udpAddr string
-
-    wormholeManager IWormholeManager
     udp_read_buffer_size int
 
-    exitChan chan bool
-    stop bool
-
-    idassign *gts.IDAssign
+    makeConn NewUdpConnectionFunc
+    makeWormhole NewWormholeFunc
 
     udpAddrs map[string]*UdpConnection
 }
@@ -59,55 +46,43 @@ type NewUdpConnectionFunc func (newcid TID, conn net.Conn, endian int) *UdpConne
 
 func NewUdpServer(
     name string,serverid int, serverType EServerType,
-    udpAddr string, maxConnections int, newConn NewUdpConnectionFunc,
-    routepack IRoutePack, wm IWormholeManager) *UdpServer {
-
-    if MAX_CONNECTIONS < maxConnections {
-        maxConnections = MAX_CONNECTIONS
-    }
+    addr string, maxConnections int,
+    makeConn NewUdpConnectionFunc,
+    makeWormhole NewWormholeFunc,
+    routePack IRoutePack, wm IWormholeManager) *UdpServer {
 
     s := &UdpServer{
-        Name:name,
-        ServerId:serverid,
-        udpAddr : udpAddr,
-        ServerType: serverType,
-        maxConnections : maxConnections,
-        wormholeManager: wm,
-        stop: false,
-        exitChan: make(chan bool),
-        newConn: newConn,
-        routepack: routepack,
+        BaseServer: NewBaseServer(
+            name,serverid, serverType, addr, maxConnections, routePack, wm),
+        makeConn: makeConn,
+        makeWormhole: makeWormhole,
     }
 
-    /*
-    if s.routepack.GetEndian() == gts.BigEndian {
-        s.endianer = binary.BigEndian
-    } else {
-        s.endianer = binary.LittleEndian
-    }
-    */
     s.udp_read_buffer_size = 1024
-    s.idassign = gts.NewIDAssign(s.maxConnections)
 
     return s
 }
 
 
 func (s *UdpServer) StartUdp() {
-	udpAddr, err := net.ResolveUDPAddr("udp", s.udpAddr)
+	udpAddr, err := net.ResolveUDPAddr("udp", s.Addr)
 	if err != nil {
-        gts.Error("udp server addr(%s) is error:%q", s.udpAddr, err)
+        gts.Error("udp server addr(%s) is error:%q", s.Addr, err)
 		return
 	}
 	sock, _err := net.ListenUDP("udp", udpAddr)
 	if _err != nil {
-        gts.Error("udp server addr(%s) is error2:%q", s.udpAddr, err)
+        gts.Error("udp server addr(%s) is error2:%q", s.Addr, err)
         return
 	}
 
     defer sock.Close()
 
 	for {
+        if s.Stop_ {
+            return
+        }
+
         buffer := make([]byte, s.udp_read_buffer_size)
 		n, from, err := sock.ReadFromUDP(buffer)
         fromAddr := from.String()
@@ -116,11 +91,11 @@ func (s *UdpServer) StartUdp() {
             gts.Trace("udp connect from :%s", fromAddr)
 			udpConn, ok:= s.udpAddrs[fromAddr]
 			if !ok {
-                newcid := s.AllocTransportid()
-                udpConn := s.newConn(
+                newcid := s.AllocId()
+                udpConn := s.makeConn(
                     TID(newcid),
                     sock,
-                    s.routepack.GetEndian())
+                    s.RoutePackHandle.GetEndian())
 
                 udpConn.SetReceiveCallback(s.receiveUdpBytes)
                 s.udpAddrs[fromAddr] = udpConn
@@ -140,7 +115,7 @@ func (s *UdpServer) StartUdp() {
 }
 
 func (s *UdpServer) receiveUdpBytes(conn IConnection) {
-    n, dps := s.routepack.Fetch(conn)
+    n, dps := s.RoutePackHandle.Fetch(conn)
     if n > 0 {
         s.receiveUdpPackets(conn, dps)
     }
@@ -160,25 +135,26 @@ func (s *UdpServer) receiveUdpPackets(conn IConnection, dps []*RoutePacket) {
                 //比如在一定时间内可以重新连接会原有wormhole
 
                 guin = dp.Guin
-                if wh, ok := s.wormholeManager.Get(guin);ok {
+                if wh, ok := s.Wormholes.Get(guin);ok {
                     if wh.GetState() == ECONN_STATE_SUSPEND {
                         wh.SetState(ECONN_STATE_ACTIVE)
                     } else if wh.GetState() == ECONN_STATE_DISCONNTCT {
                         wh = nil
                     }
                 }
+            } else {
+                guin = GetGuin(s.ServerId, int(conn.GetId()))
             }
             if wh == nil {
-                guin := GetGuin(s.ServerId, int(conn.GetId()))
-                wh = NewWormhole(guin, s.wormholeManager, s.routepack)
-                s.wormholeManager.Add(wh)
+                wh = s.makeWormhole(guin, s.Wormholes, s.RoutePackHandle)
+                s.Wormholes.Add(wh)
             }
 
             //将该连接绑定到wormhole，
             //并且connection的receivebytes将被wormhole接管
             //该函数将不会被该connection调用
             wh.AddConnection(conn, ECONN_TYPE_DATA)
-            gts.Debug("has clients:",s.wormholeManager.Length())
+            gts.Debug("has clients:",s.Wormholes.Length())
 
 
             fromType := EWormholeType(dp.Data[0])
@@ -187,62 +163,4 @@ func (s *UdpServer) receiveUdpPackets(conn IConnection, dps []*RoutePacket) {
         }
     }
 }
-
-
-/*
-func (s *UdpServer) broadcastHandler(broadcastChan <-chan *RoutePacket) {
-    for {
-        dp := <-broadcastChan
-
-        dp0 := &RoutePacket{
-            Type: DATAPACKET_TYPE_GENERAL,
-            FromCid: 0,
-            Data: dp.Data,
-        }
-
-        for _, c := range s.Connections.All() {
-            gts.Trace("broadcastHandler: client.type",c.GetType())
-            //if fromCid == c.GetTransport().Cid {
-                //continue
-            //}
-            if c.GetType() == CLIENT_TYPE_GATE {
-                c.GetTransport().Outgoing <- dp
-            } else {
-                c.GetTransport().Outgoing <- dp0
-            }
-        }
-        //gts.Trace("broadcastHandler: Handle end!")
-    }
-}
-
-
-//send broadcast message data for other object
-func (s *UdpServer) SendBroadcast(dp *RoutePacket) {
-    s.broadcastChan <- dp
-}
-*/
-
-
-func (s *UdpServer) Stop() {
-    s.stop = true
-}
-
-
-func (s *UdpServer) AllocTransportid() int {
-    if (s.wormholeManager.Length() >= s.maxConnections) {
-        return 0
-    }
-
-    return s.idassign.GetFree()
-}
-
-
-func (s *UdpServer) SetMaxConnections(max int) {
-    if MAX_CONNECTIONS < max {
-        s.maxConnections = MAX_CONNECTIONS
-    } else {
-        s.maxConnections = max
-    }
-}
-
 

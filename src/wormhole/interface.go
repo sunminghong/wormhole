@@ -169,6 +169,7 @@ const (
 
 type ReceivePacketFunc func (wh IWormhole, dps []*RoutePacket)
 
+type NewWormholeFunc func(guin TID, wormholeManager IWormholeManager, routepack IRoutePack) IWormhole
 
 type IWormhole interface {
     GetFromType() EWormholeType
