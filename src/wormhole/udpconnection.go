@@ -64,7 +64,7 @@ func NewUdpConnection(newcid int, conn *net.UDPConn, endian int, userAddr *net.U
     go c.reader()
 
     if conn != nil {
-        go c.ConnSender()
+        go c.ConnSenderServer()
     }
 
     return c
@@ -157,7 +157,7 @@ func (c *UdpConnection) ConnSenderClient() {
 }
 
 
-func (c *UdpConnection) ConnSender() {
+func (c *UdpConnection) ConnSenderServer() {
     for {
         select {
         //case dp := <-c.outgoing:
@@ -204,7 +204,6 @@ func (c *UdpConnection) SetType(t EConnType) {
 
 func (c *UdpConnection) Close() {
     c.quit <- true
-    c.conn.Close()
 }
 
 

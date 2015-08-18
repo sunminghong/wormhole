@@ -18,18 +18,12 @@ package wormhole
 
 
 import (
-    //"reflect"
-    //"strconv"
-    //"encoding/binary"
-    //"time"
-    //"math/rand"
-
     "net"
     gts "github.com/sunminghong/gotools"
 )
 
 
-type NewTcpConnectionFunc func (newcid TID, conn net.Conn, endian int) *TcpConnection
+type NewTcpConnectionFunc func(newcid int, conn net.Conn, endian int) *TcpConnection
 
 
 type TcpServer struct {
@@ -43,17 +37,17 @@ type TcpServer struct {
 
 
 func NewTcpServer(
-    name string,serverid int, serverType EServerType,
+    name string,serverid int, serverType EWormholeType,
     addr string, MaxConns int,
-    makeConn NewTcpConnectionFunc,
+    RoutePackHandle IRoutePack, wm IWormholeManager,
     makeWormhole NewWormholeFunc,
-    RoutePackHandle IRoutePack, wm IWormholeManager) *TcpServer {
+    makeConn NewTcpConnectionFunc) *TcpServer {
 
     s := &TcpServer{
         BaseServer: NewBaseServer(
             name, serverid, serverType, addr, MaxConns, RoutePackHandle, wm),
         makeConn: makeConn,
-
+        makeWormhole: makeWormhole,
     }
 
     return s
@@ -99,7 +93,7 @@ func (s *TcpServer) Start() {
                 gts.Warn("connection num is more than ",s.MaxConns)
             } else {
                 gts.Trace("//////////////////////newcid:",newcid)
-                tcpConn := s.makeConn(TID(newcid), connection,
+                tcpConn := s.makeConn(newcid, connection,
                     s.RoutePackHandle.GetEndian())
                 tcpConn.SetReceiveCallback(s.receiveBytes)
             }
@@ -164,14 +158,13 @@ func (s *TcpServer) receivePackets(conn IConnection, dps []*RoutePacket) {
                 Guin:   guin,
                 Data:   []byte{byte(s.ServerType)},
             }
-            wh.SendPacket(packet)
-
             //hello udp addr to client
             if len(s.udpAddr) == 0 {
                 packet.Type = EPACKET_TYPE_UDP_SERVER
                 packet.Data = []byte(s.udpAddr)
                 wh.SendPacket(packet)
             }
+            wh.SendPacket(packet)
 
             break
         }

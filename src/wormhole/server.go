@@ -16,13 +16,12 @@
 
 package wormhole
 
-/*
 import (
     //"reflect"
     //"strconv"
-    "net"
-    "time"
-    "math/rand"
+    //"net"
+    //"time"
+    //"math/rand"
 
     gts "github.com/sunminghong/gotools"
 )
@@ -33,11 +32,9 @@ type Server struct {
     ServerId int
     Addr string
 
-    ServerType EServerType
+    ServerType EWormholeType
 
     maxConnections int
-    newConn NewTcpConnectionFunc
-    routepack   IRoutePack
     //endianer        gts.IEndianer
 
     tcpAddr string
@@ -48,14 +45,17 @@ type Server struct {
     exitChan chan bool
     stop bool
 
-    idassign *gts.IDAssign
+
+    tcpServer *TcpServer
+    udpServer *UdpServer
 }
 
 
 func NewServer(
-    name string,serverid int, serverType EServerType,tcpAddr string,
-    udpAddr string, maxConnections int, newConn NewTcpConnectionFunc,
-    routepack IRoutePack, wm IWormholeManager) *Server {
+    name string, serverid int, serverType EWormholeType,
+    tcpAddr string, udpAddr string, maxConnections int,
+    routepack IRoutePack, wm IWormholeManager,
+    makeWormhole NewWormholeFunc) *Server {
 
     if MAX_CONNECTIONS < maxConnections {
         maxConnections = MAX_CONNECTIONS
@@ -71,26 +71,13 @@ func NewServer(
         wormholeManager: wm,
         stop: false,
         exitChan: make(chan bool),
-        newConn: newConn,
-        routepack: routepack,
     }
 
-    /*
-    if s.routepack.GetEndian() == gts.BigEndian {
-        s.endianer = binary.BigEndian
-    } else {
-        s.endianer = binary.LittleEndian
-    }
-    */
-/*
-    s.idassign = gts.NewIDAssign(s.maxConnections)
+    s.tcpServer = NewTcpServer(name, serverid, serverType, tcpAddr, maxConnections, routepack, wm, makeWormhole, NewTcpConnection)
+
+    s.udpServer = NewUdpServer(name, serverid, serverType, udpAddr, maxConnections, routepack, wm, makeWormhole, NewUdpConnection)
 
     return s
-}
-
-
-func (s *Server) SetUdpAddr(udpAddr string) {
-    s.udpAddr = udpAddr
 }
 
 
@@ -98,7 +85,18 @@ func (s *Server) Start() {
     gts.Info(s.Name +" is starting...")
     s.stop=false
 
-    //s.StartTcp()
-    //s.StartUdp()
+    if len(s.tcpAddr) == 0 {
+        s.tcpServer.Start()
+    }
+    if len(s.udpAddr) == 0 {
+        s.udpServer.Start()
+    }
 }
-*/
+
+
+func (s *Server) Stop() {
+    s.tcpServer.Stop()
+    s.udpServer.Stop()
+}
+
+

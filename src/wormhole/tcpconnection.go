@@ -173,7 +173,6 @@ func (c *TcpConnection) SetType(t EConnType) {
 
 func (c *TcpConnection) Close() {
     c.quit <- true
-    c.conn.Close()
 }
 
 

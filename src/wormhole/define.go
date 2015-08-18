@@ -81,12 +81,11 @@ type RoutePacket struct {
 // data route layer end -----------------------------------------------
 
 
-
 // connection define
 type EConnType byte
 const(
-    ECONN_TYPE_CTRL = 0
-    ECONN_TYPE_DATA = 1
+    ECONN_TYPE_CTRL EConnType = iota + 1
+    ECONN_TYPE_DATA
 )
 
 
@@ -145,31 +144,35 @@ type GUIN interface {
 
 type EWormholeState byte
 const (
-    ECONN_STATE_ACTIVE = 0
-    ECONN_STATE_DISCONNTCT = 1
-    ECONN_STATE_SUSPEND = 2
+    ECONN_STATE_ACTIVE EWormholeState = iota
+    ECONN_STATE_DISCONNTCT
+    ECONN_STATE_SUSPEND
 )
 
 
 type EWormholeType byte
 const (
-    EWORMHOLE_TYPE_CLIENT = 0
-    EWORMHOLE_TYPE_GAMESERVER = 1
-    EWORMHOLE_TYPE_AGENT = 2
-    EWORMHOLE_TYPE_CONSOLE = 3
+    EWORMHOLE_TYPE_CLIENT EWormholeType = iota
+    EWORMHOLE_TYPE_GAMESERVER
+    EWORMHOLE_TYPE_AGENT
+    EWORMHOLE_TYPE_CONSOLE
 )
 
-
+/*
 type EServerType byte
 const (
-    ESERVER_TYPE_GAMESERVER = 1
-    ESERVER_TYPE_AGENT = 2
-    ESERVER_TYPE_CONSOLE = 3
+    ESERVER_TYPE_GAMESERVER EServerType = iota + 1
+    ESERVER_TYPE_AGENT
+    ESERVER_TYPE_CONSOLE
 )
+*/
+
 
 type ReceivePacketFunc func (wh IWormhole, dps []*RoutePacket)
 
+
 type NewWormholeFunc func(guin TID, wormholeManager IWormholeManager, routepack IRoutePack) IWormhole
+
 
 type IWormhole interface {
     GetFromType() EWormholeType
@@ -200,6 +203,7 @@ type IWormhole interface {
     GetManager() IWormholeManager
 }
 
+
 type IWormholeManager interface {
     Add(wh IWormhole)
     Get(guin TID) (IWormhole,bool)
@@ -213,14 +217,7 @@ type IWormholeManager interface {
     Length() int
 }
 
+
 // wormhole define end -----------------------------------------------
 
 
-
-// wormhole tcp server define
-
-type ITcpServer interface {
-
-}
-
-// wormhole tcp server define ----------------------------------------

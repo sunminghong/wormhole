@@ -18,12 +18,6 @@ package wormhole
 
 
 import (
-    //"reflect"
-    //"strconv"
-    //"encoding/binary"
-    //"time"
-    //"math/rand"
-
     "net"
 
     gts "github.com/sunminghong/gotools"
@@ -38,18 +32,19 @@ type UdpServer struct {
     makeConn NewUdpConnectionFunc
     makeWormhole NewWormholeFunc
 
-    udpAddrs map[string]*UdpConnection
+    udpAddrs map[*net.UDPAddr]*UdpConnection
 }
 
 
-type NewUdpConnectionFunc func (newcid TID, conn net.Conn, endian int) *UdpConnection
+type NewUdpConnectionFunc func (newcid int, conn *net.UDPConn, endian int, userAddr *net.UDPAddr) *UdpConnection
+
 
 func NewUdpServer(
-    name string,serverid int, serverType EServerType,
+    name string,serverid int, serverType EWormholeType,
     addr string, maxConnections int,
-    makeConn NewUdpConnectionFunc,
+    routePack IRoutePack, wm IWormholeManager,
     makeWormhole NewWormholeFunc,
-    routePack IRoutePack, wm IWormholeManager) *UdpServer {
+    makeConn NewUdpConnectionFunc) *UdpServer {
 
     s := &UdpServer{
         BaseServer: NewBaseServer(
@@ -64,7 +59,7 @@ func NewUdpServer(
 }
 
 
-func (s *UdpServer) StartUdp() {
+func (s *UdpServer) Start() {
 	udpAddr, err := net.ResolveUDPAddr("udp", s.Addr)
 	if err != nil {
         gts.Error("udp server addr(%s) is error:%q", s.Addr, err)
@@ -84,8 +79,7 @@ func (s *UdpServer) StartUdp() {
         }
 
         buffer := make([]byte, s.udp_read_buffer_size)
-		n, from, err := sock.ReadFromUDP(buffer)
-        fromAddr := from.String()
+		n, fromAddr, err := sock.ReadFromUDP(buffer)
 		if err == nil {
 			//log.Println("recv", n, from)
             gts.Trace("udp connect from :%s", fromAddr)
@@ -93,9 +87,11 @@ func (s *UdpServer) StartUdp() {
 			if !ok {
                 newcid := s.AllocId()
                 udpConn := s.makeConn(
-                    TID(newcid),
+                    newcid,
                     sock,
-                    s.RoutePackHandle.GetEndian())
+                    s.RoutePackHandle.GetEndian(),
+                    fromAddr,
+                )
 
                 udpConn.SetReceiveCallback(s.receiveUdpBytes)
                 s.udpAddrs[fromAddr] = udpConn

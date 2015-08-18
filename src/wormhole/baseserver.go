@@ -19,7 +19,7 @@ type BaseServer struct {
     ServerId int
     Addr string
 
-    ServerType EServerType
+    ServerType EWormholeType
 
     MaxConns int
     RoutePackHandle   IRoutePack
@@ -37,7 +37,7 @@ type BaseServer struct {
 
 
 func NewBaseServer(
-    name string,serverid int, serverType EServerType,
+    name string,serverid int, serverType EWormholeType,
     addr string, maxConnections int,
     routePack IRoutePack, wm IWormholeManager) *BaseServer {
 
