@@ -166,3 +166,5 @@ func (c *Client) initWormhole(dp *RoutePacket, conn IConnection) {
     fromType := EWormholeType(dp.Data[0])
     c.wormhole.SetFromType(fromType)
 }
+
+
