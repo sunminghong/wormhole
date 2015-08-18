@@ -61,8 +61,11 @@ func NewUdpConnection(newcid int, conn *net.UDPConn, endian int, userAddr *net.U
     c.stream.Reset()
 
     //创建go的线程 使用Goroutine
-    go c.ConnSender()
-    go c.ConnReader()
+    go c.reader()
+
+    if conn != nil {
+        go c.ConnSender()
+    }
 
     return c
 }
@@ -79,23 +82,43 @@ func (c *UdpConnection) GetStream() IStream {
 
 func (c *UdpConnection) Connect(addr string) bool {
     gts.Info("connect to grid:", addr)
+	udpAddr, err := net.ResolveUDPAddr("udp", addr)
+	if err != nil {
+        gts.Error("dial udp server addr(%s) is error:%q", udpAddr, err)
+		return false
+	}
 
-    conn, err := net.Dial("tcp", addr)
+    conn, err := net.DialUDP("udp", nil, udpAddr)
     if err != nil {
         gts.Warn("net.Dial to %s:%q",addr, err)
         return false
-    } else {
-        gts.Info("pool dial to %s is ok. ", addr)
     }
+
+    gts.Info("pool dial to %s is ok. ", addr)
 
     go func() {
         defer conn.Close()
 
         c.conn = conn
 
-        //创建go的线程 使用Goroutine
-        go c.reader()
-        go c.ConnReader()
+        buffer := make([]byte, 1024)
+        go func() {
+            for {
+                n, err := c.conn.Read(buffer[0:])
+                if err == nil {
+                    c.ConnReader(buffer[0:n])
+                } else {
+                    e, ok := err.(net.Error)
+                    if !ok || !e.Timeout() {
+                        gts.Trace("recv error", err.Error(), udpAddr)
+                        c.Quit <- true
+                        return
+                    }
+                }
+            }
+        }()
+
+        go c.ConnSenderClient()
 
         gts.Info("be connected to grid ", addr)
 
@@ -103,6 +126,7 @@ func (c *UdpConnection) Connect(addr string) bool {
     }()
     return true
 }
+
 
 func (c *UdpConnection) ConnReader(buffer []byte) {
     c.stream.Write(buffer)
@@ -114,6 +138,24 @@ func (c *UdpConnection) reader() {
     <-c.receiveChan
     c.receiveCallback(c)
 }
+
+
+func (c *UdpConnection) ConnSenderClient() {
+    for {
+        select {
+        case bytes := <-c.outgoingBytes:
+            c.conn.Write(bytes)
+
+        case <-c.quit:
+            //Log("Transport ", transport.Cid, " quitting")
+            c.conn.Close()
+
+            c.closeCallback(c.id)
+            break
+        }
+    }
+}
+
 
 func (c *UdpConnection) ConnSender() {
     for {
