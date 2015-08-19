@@ -30,7 +30,6 @@ import (
 type Server struct {
     Name string
     ServerId int
-    Addr string
 
     ServerType EWormholeType
 

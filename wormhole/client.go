@@ -75,7 +75,7 @@ func NewClient(
 
 func (c *Client) Connect() {
     c.tcpConn = NewTcpConnection(1, nil, c.routepack.GetEndian())
-    c.tcpConn.SetReceiveCallback(c.receiveBytes)
+    c.tcpConn.SetReceiveCallback(c.receiveTcpBytes)
 
     if c.tcpConn.Connect(c.tcpAddr) {
         //连接上服务器
@@ -98,15 +98,15 @@ func (c *Client) Close() {
 }
 
 
-func (c *Client) receiveBytes(conn IConnection) {
+func (c *Client) receiveTcpBytes(conn IConnection) {
     n, dps := c.routepack.Fetch(conn)
     if n > 0 {
-        c.receivePackets(conn, dps)
+        c.receiveTcpPackets(conn, dps)
     }
 }
 
 
-func (c *Client) receivePackets(conn IConnection, dps []*RoutePacket) {
+func (c *Client) receiveTcpPackets(conn IConnection, dps []*RoutePacket) {
     for _, dp := range dps {
         if dp.Type == EPACKET_TYPE_HELLO {
             c.guin = dp.Guin

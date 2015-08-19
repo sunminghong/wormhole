@@ -30,7 +30,6 @@ type Wormhole struct {
 }
 
 
-// new Transport object
 func NewWormhole(guin TID, manager IWormholeManager, routepack IRoutePack) *Wormhole {
     wh := &Wormhole {
         guin:           guin,
@@ -50,7 +49,7 @@ func (wh *Wormhole) SetReceivePacketCallback(cf ReceivePacketFunc)  {
 }
 */
 
-
+//需要继承实现具体的处理逻辑
 func (c *Wormhole) ProcessPackets(dps []*RoutePacket) {
     print("wormhole don't implent")
 }
