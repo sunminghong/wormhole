@@ -15,6 +15,8 @@ package server
 
 
 import (
+    gts "github.com/sunminghong/gotools"
+
     . "wormhole/wormhole"
 )
 
@@ -39,7 +41,7 @@ func (aw *AgentToClientWormhole) Init() {
 
 
 func (aw *AgentToClientWormhole) ProcessPackets(dps []*RoutePacket) {
-    print("agentwormhole processpackets receive %d route packets", len(dps))
+    gts.Trace("agentwormhole processpackets receive %d route packets", len(dps))
 
     for _,dp := range dps {
         print("%q", dp)
