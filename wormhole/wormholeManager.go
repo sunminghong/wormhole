@@ -15,7 +15,7 @@ import (
 )
 
 type WormholeManager struct {
-    wormholes map[TID]IWormhole
+    wormholes map[int]IWormhole
 
     wmlock *sync.RWMutex
 
@@ -30,7 +30,7 @@ type WormholeManager struct {
 func NewWormholeManager(routepack IRoutePack, broadcast_chan_num int, fromType EWormholeType) *WormholeManager {
     wm := &WormholeManager {
         wmlock:        new(sync.RWMutex),
-        wormholes:      make(map[TID]IWormhole),
+        wormholes:      make(map[int]IWormhole),
         fromType:       fromType,
         routePack:      routepack,
         server:         nil,
@@ -61,13 +61,13 @@ func (wm *WormholeManager) Add(wh IWormhole) {
 }
 
 
-func (wm *WormholeManager) Get(guin TID) (IWormhole,bool) {
+func (wm *WormholeManager) Get(guin int) (IWormhole,bool) {
     wh, ok := wm.wormholes[guin]
     return wh, ok
 }
 
 
-func (wm *WormholeManager) Remove(guin TID)  {
+func (wm *WormholeManager) Remove(guin int)  {
     wm.wmlock.Lock()
     defer wm.wmlock.Unlock()
 
@@ -77,7 +77,7 @@ func (wm *WormholeManager) Remove(guin TID)  {
 }
 
 
-func (wm *WormholeManager) Close(guin TID) {
+func (wm *WormholeManager) Close(guin int) {
     wm.wmlock.Lock()
     defer wm.wmlock.Unlock()
 
@@ -98,7 +98,7 @@ func (wm *WormholeManager) CloseAll() {
 }
 
 
-func (wm *WormholeManager) Send(guin TID, data []byte) {
+func (wm *WormholeManager) Send(guin int, data []byte) {
     if wh, ok := wm.wormholes[guin];ok {
         /*
         packet := &RoutePacket {
@@ -116,7 +116,7 @@ func (wm *WormholeManager) Send(guin TID, data []byte) {
 }
 
 
-func (wm *WormholeManager) Broadcast(guin TID, data []byte) {
+func (wm *WormholeManager) Broadcast(guin int, data []byte) {
     packet := &RoutePacket {
         Type:   EPACKET_TYPE_BROADCAST,
         Guin:   guin,

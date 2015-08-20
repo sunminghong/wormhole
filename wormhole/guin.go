@@ -27,20 +27,20 @@ import (
 )
 
 
-func Parse(guin TID) (serverId int, id int, check int) {
+func Parse(guin int) (serverId int, id int, check int) {
     uin := int(guin)
     return uin & 0x1f, (uin >> 5) & 0x3fff, (uin >> 19) & 0x1fff
 }
 
 
-func GetGuin(serverId int, id int) TID {
+func GetGuin(serverId int, id int) int {
     //check := gm.r.Intn(0x1fff - 1)
     check := int(time.Now().UnixNano() & 0x1fff)
 
     //guin := (serverId & 0x1f) | ((id & 0x3fff) << 5) | (check & 0x1fff) << 19)
     guin := serverId | (id << 5) | (check << 19)
 
-    return TID(guin)
+    return guin
 }
 
 
@@ -60,7 +60,7 @@ func NewGuinMaker() *GuinMaker {
     return gm
 }
 
-func(gm *GuinMaker) GenerateGuin(serverId int) TID {
+func(gm *GuinMaker) GenerateGuin(serverId int) int {
     id := gm.idassign.GetFree()
     if id == 0 {
         return 0

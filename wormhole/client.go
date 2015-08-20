@@ -31,7 +31,7 @@ import (
 
 type Client struct {
     //endianer        gtc.IEndianer
-    guin TID
+    guin int
 
     tcpAddr string
     udpAddr string

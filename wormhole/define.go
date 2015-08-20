@@ -16,14 +16,10 @@ import (
     gts "github.com/sunminghong/gotools"
 )
 
+
 //common define
-type TID uint32
 const TIDSize = 4
 const MAX_CONNECTIONS = 0x3fff -1
-
-func (t TID) toI() uint32 {
-    return uint32(t)
-}
 
 
 type CommonCallbackFunc func (id int)
@@ -80,7 +76,7 @@ type IRoutePack interface {
 // datapacket = mask1(byte) + mask2(byte) + packetType(byte) + datalength(int32) + data + [guin]
 type RoutePacket struct {
     Type  ERouteType
-    Guin TID
+    Guin int
     Data  []byte
 }
 
@@ -113,7 +109,7 @@ type IConnection interface {
     SetCloseCallback(cf CommonCallbackFunc)
 
     //connId 比如tcp socketid or udp socketid
-    //SetId(TID connectId)
+    //SetId(int connectId)
     GetId() int
 
     GetStream() IStream
@@ -142,9 +138,9 @@ type IConnection interface {
 
 type GUIN interface {
     //生成一个guin
-    GenerateGuin(agentId int) TID
+    GenerateGuin(agentId int) int
 
-    Parse(guin TID) (agentId int, id int, check int)
+    Parse(guin int) (agentId int, id int, check int)
 }
 
 
@@ -177,7 +173,7 @@ const (
 type ReceivePacketFunc func (wh IWormhole, dps []*RoutePacket)
 
 
-type NewWormholeFunc func(guin TID, wormholeManager IWormholeManager, routepack IRoutePack) IWormhole
+type NewWormholeFunc func(guin int, wormholeManager IWormholeManager, routepack IRoutePack) IWormhole
 
 
 type IWormhole interface {
@@ -187,7 +183,7 @@ type IWormhole interface {
     GetFromId() int
     SetFromId(id int)
 
-    GetGuin() TID
+    GetGuin() int
 
     AddConnection(conn IConnection, t EConnType)
 
@@ -196,8 +192,8 @@ type IWormhole interface {
 
     SendRaw(data []byte)
     SendPacket(packet *RoutePacket)
-    Send(guin TID, data []byte)
-    Broadcast(guin TID, data []byte)
+    Send(guin int, data []byte)
+    Broadcast(guin int, data []byte)
 
     //SetReceivePacketCallback(receive ReceivePacketFunc)
 
@@ -218,15 +214,15 @@ type IServer interface {
 
 type IWormholeManager interface {
     Add(wh IWormhole)
-    Get(guin TID) (IWormhole,bool)
+    Get(guin int) (IWormhole,bool)
 
     SetServer(server IServer)
     GetServer() IServer
 
-    Send(guin TID, data []byte)
-    Broadcast(guin TID, data []byte)
+    Send(guin int, data []byte)
+    Broadcast(guin int, data []byte)
 
-    Close(guin TID)
+    Close(guin int)
     CloseAll()
 
     Length() int

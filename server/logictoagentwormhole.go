@@ -29,7 +29,7 @@ type LogicToAgentWormhole struct {
     group string
 }
 
-func NewLogicToAgentWormhole(guin TID, manager IWormholeManager, routepack IRoutePack) *LogicToAgentWormhole {
+func NewLogicToAgentWormhole(guin int, manager IWormholeManager, routepack IRoutePack) *LogicToAgentWormhole {
     aw := &LogicToAgentWormhole {
         Wormhole : NewWormhole(guin, manager, routepack),
         group : "",

@@ -30,7 +30,7 @@ type AgentToClientWormhole struct {
 }
 
 
-func NewAgentToClientWormhole(guin TID, manager IWormholeManager, routepack IRoutePack) *AgentToClientWormhole {
+func NewAgentToClientWormhole(guin int, manager IWormholeManager, routepack IRoutePack) *AgentToClientWormhole {
     aw := &AgentToClientWormhole {
         Wormhole : NewWormhole(guin, manager, routepack),
     }

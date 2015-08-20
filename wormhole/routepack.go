@@ -147,7 +147,7 @@ func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
             dp := &RoutePacket{Type:ERouteType(dataType)}
 
             if dataType & 1 == 1 {
-                dp.Guin = TID(d.endianer.Uint32(data[dpSize-4:]))
+                dp.Guin = int(d.endianer.Uint32(data[dpSize-4:]))
                 dp.Data = data[:dpSize-4]
             } else {
                 dp.Data = data

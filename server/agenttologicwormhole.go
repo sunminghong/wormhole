@@ -28,7 +28,7 @@ type AgentToLogicWormhole struct {
 }
 
 
-func NewAgentToLogicWormhole(guin TID, manager IWormholeManager, routepack IRoutePack) *AgentToLogicWormhole {
+func NewAgentToLogicWormhole(guin int, manager IWormholeManager, routepack IRoutePack) *AgentToLogicWormhole {
     aw := &AgentToLogicWormhole{
         Wormhole : NewWormhole(guin, manager, routepack),
     }

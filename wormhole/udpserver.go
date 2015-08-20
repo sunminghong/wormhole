@@ -122,7 +122,7 @@ func (s *UdpServer) receiveUdpPackets(conn IConnection, dps []*RoutePacket) {
     for _, dp := range dps {
         if dp.Type == EPACKET_TYPE_HELLO {
              //接到连接方hello包
-            var guin TID
+            var guin int
             var wh IWormhole
 
             if dp.Guin > 0 {

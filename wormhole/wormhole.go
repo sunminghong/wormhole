@@ -15,7 +15,7 @@ type Wormhole struct {
 
     dataConnection IConnection
 
-    guin TID
+    guin int
     wormholes IWormholeManager
 
     fromId int
@@ -30,7 +30,7 @@ type Wormhole struct {
 }
 
 
-func NewWormhole(guin TID, wormholes IWormholeManager, routepack IRoutePack) *Wormhole {
+func NewWormhole(guin int, wormholes IWormholeManager, routepack IRoutePack) *Wormhole {
     wh := &Wormhole {
         guin:           guin,
         fromId:         0,
@@ -85,7 +85,7 @@ func (wh *Wormhole) GetFromId() int {
 }
 
 
-func (wh *Wormhole) GetGuin() TID {
+func (wh *Wormhole) GetGuin() int {
     return wh.guin
 }
 
@@ -170,7 +170,7 @@ func (wh *Wormhole) SendRaw(raw []byte) {
 }
 
 
-func (wh *Wormhole) Send(guin TID, data []byte) {
+func (wh *Wormhole) Send(guin int, data []byte) {
     packet := &RoutePacket {
         Type:   EPACKET_TYPE_GENERAL,
         Guin:   guin,
@@ -185,7 +185,7 @@ func (wh *Wormhole) Send(guin TID, data []byte) {
 }
 
 
-func (wh *Wormhole) Broadcast(guin TID, data []byte) {
+func (wh *Wormhole) Broadcast(guin int, data []byte) {
     //packet := &RoutePacket {
         //Type:   EPACKET_TYPE_BROADCAST,
         //Guin:   guin,
