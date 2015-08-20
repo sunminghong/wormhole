@@ -15,12 +15,6 @@ package server
 
 
 import (
-    //"net"
-    //"strconv"
-    //"time"
-    //"fmt"
-    //"strings"
-
     . "wormhole/wormhole"
 )
 
@@ -36,6 +30,11 @@ func NewAgentToClientWormhole(guin int, manager IWormholeManager, routepack IRou
     }
 
     return aw
+}
+
+
+func (aw *AgentToClientWormhole) Init() {
+    gts.Trace("agenttoclient wormhole init()")
 }
 
 
