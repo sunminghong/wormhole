@@ -12,6 +12,10 @@
 */
 package wormhole
 
+import (
+    gts "github.com/sunminghong/gotools"
+)
+
 //common define
 type TID uint32
 const TIDSize = 4
@@ -48,6 +52,8 @@ const (
 
     EPACKET_TYPE_UDP_SERVER = 22
     EPACKET_TYPE_HELLO = 24  //guin，data里面为发送方类型（如是ageng，client，gameserver）
+    EPACKET_TYPE_LOGIC_REGISTER = 26  //注册logic 能处理的method分组
+
 )
 
 
@@ -60,8 +66,8 @@ type IRoutePack interface {
 
     Clone() IRoutePack
 
-    GetEndian() int
-    SetEndian(endian int)
+    GetEndianer() gts.IEndianer
+    SetEndianer(endianer gts.IEndianer)
 
     Fetch(conn IConnection) (n int, dps []*RoutePacket)
     Pack(dp *RoutePacket) []byte
@@ -71,7 +77,7 @@ type IRoutePack interface {
 
 
 // define a struct or class of rec transport connection
-// datapacket = mask1(byte) | mask2(byte) | packetType(byte) | datalength(int32) | data| guin
+// datapacket = mask1(byte) + mask2(byte) + packetType(byte) + datalength(int32) + data + [guin]
 type RoutePacket struct {
     Type  ERouteType
     Guin TID
@@ -195,6 +201,7 @@ type IWormhole interface {
 
     //SetReceivePacketCallback(receive ReceivePacketFunc)
 
+    Init()
     ProcessPackets(packets []*RoutePacket)
 
     Close()
@@ -204,9 +211,17 @@ type IWormhole interface {
 }
 
 
+type IServer interface {
+    GetServerId() int
+}
+
+
 type IWormholeManager interface {
     Add(wh IWormhole)
     Get(guin TID) (IWormhole,bool)
+
+    SetServer(server IServer)
+    GetServer() IServer
 
     Send(guin TID, data []byte)
     Broadcast(guin TID, data []byte)

@@ -23,7 +23,7 @@ import (
 )
 
 
-type NewTcpConnectionFunc func(newcid int, conn net.Conn, endian int) *TcpConnection
+type NewTcpConnectionFunc func(newcid int, conn net.Conn, endianer gts.IEndianer) *TcpConnection
 
 
 type TcpServer struct {
@@ -94,7 +94,7 @@ func (s *TcpServer) Start() {
             } else {
                 gts.Trace("//////////////////////newcid:",newcid)
                 tcpConn := s.makeConn(newcid, connection,
-                    s.RoutePackHandle.GetEndian())
+                    s.RoutePackHandle.GetEndianer())
                 tcpConn.SetReceiveCallback(s.receiveBytes)
             }
         }
@@ -158,6 +158,9 @@ func (s *TcpServer) receivePackets(conn IConnection, dps []*RoutePacket) {
                 Guin:   guin,
                 Data:   []byte{byte(s.ServerType)},
             }
+
+            wh.Init()
+
             //hello udp addr to client
             if len(s.udpAddr) == 0 {
                 packet.Type = EPACKET_TYPE_UDP_SERVER

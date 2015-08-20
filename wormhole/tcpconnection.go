@@ -41,7 +41,7 @@ type TcpConnection struct {
 
 
 // new Transport object
-func NewTcpConnection(newcid int, conn net.Conn, endian int) *TcpConnection {
+func NewTcpConnection(newcid int, conn net.Conn, endianer gts.IEndianer) *TcpConnection {
     c := &TcpConnection {
         id:      newcid,
         conn:     conn,
@@ -51,7 +51,7 @@ func NewTcpConnection(newcid int, conn net.Conn, endian int) *TcpConnection {
         quit:     make(chan bool),
         Quit:     make(chan bool),
 
-        stream:   gts.NewRWStream(1024, endian),
+        stream:   gts.NewRWStream(1024, endianer),
     }
 
     c.stream.Reset()

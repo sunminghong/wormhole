@@ -28,7 +28,6 @@ import (
 
 
 type Logic struct {
-
     makeWormhole NewWormholeFunc
     wormholes IWormholeManager
 
@@ -38,13 +37,15 @@ type Logic struct {
     serverId int
 
     clients map[string]*Client
+
+    group string
 }
 
 
 func NewLogic(
     name string, serverId int,serverType EWormholeType,
     routepack IRoutePack, wm IWormholeManager,
-    makeWormhole NewWormholeFunc) *Logic {
+    makeWormhole NewWormholeFunc, group string) *Logic {
 
     ls := &Logic{
         routepack: routepack,
@@ -53,6 +54,7 @@ func NewLogic(
         makeWormhole: makeWormhole,
         wormholes: wm,
         serverType: serverType,
+        group : group,
     }
 
     return ls
@@ -63,6 +65,7 @@ func (ls *Logic) ConnectAgent(tcpAddr string, udpAddr string) {
     c := NewClient(tcpAddr, udpAddr, ls.routepack, ls.wormholes,
         ls.makeWormhole, ls.serverType)
 
+    c.GetWormhole().(*LogicToAgentWormhole).SetGroup(ls.group)
     ls.clients[tcpAddr] = c
 }
 

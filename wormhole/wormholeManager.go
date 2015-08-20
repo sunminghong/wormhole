@@ -22,6 +22,8 @@ type WormholeManager struct {
     broadcastChan chan *RoutePacket
     fromType  EWormholeType
     routePack IRoutePack
+
+    server IServer
 }
 
 
@@ -31,6 +33,7 @@ func NewWormholeManager(routepack IRoutePack, broadcast_chan_num int, fromType E
         wormholes:      make(map[TID]IWormhole),
         fromType:       fromType,
         routePack:      routepack,
+        server:         nil,
     }
 
     wm.broadcastChan = make(chan *RoutePacket, broadcast_chan_num)
@@ -40,11 +43,27 @@ func NewWormholeManager(routepack IRoutePack, broadcast_chan_num int, fromType E
 }
 
 
+func (wh *WormholeManager) SetServer(server IServer) {
+    wh.server = server
+}
+
+
+func (wh *WormholeManager) GetServer() IServer {
+    return wh.server
+}
+
+
 func (wm *WormholeManager) Add(wh IWormhole) {
     wm.wmlock.Lock()
     defer wm.wmlock.Unlock()
 
     wm.wormholes[wh.GetGuin()] = wh
+}
+
+
+func (wm *WormholeManager) Get(guin TID) (IWormhole,bool) {
+    wh, ok := wm.wormholes[guin]
+    return wh, ok
 }
 
 
@@ -118,7 +137,6 @@ func (wm *WormholeManager) broadcastHandler(broadcastChan <-chan *RoutePacket) {
         }
     }
 }
-
 
 
 func (wm *WormholeManager) Length() int {

@@ -16,7 +16,7 @@ type Wormhole struct {
     dataConnection IConnection
 
     guin TID
-    manager IWormholeManager
+    wormholes IWormholeManager
 
     fromId int
     fromType EWormholeType
@@ -30,12 +30,12 @@ type Wormhole struct {
 }
 
 
-func NewWormhole(guin TID, manager IWormholeManager, routepack IRoutePack) *Wormhole {
+func NewWormhole(guin TID, wormholes IWormholeManager, routepack IRoutePack) *Wormhole {
     wh := &Wormhole {
         guin:           guin,
         fromId:         0,
         fromType:       EWORMHOLE_TYPE_CLIENT,
-        manager:        manager,
+        wormholes:        wormholes,
         routePack:      routepack,
     }
 
@@ -50,8 +50,13 @@ func (wh *Wormhole) SetReceivePacketCallback(cf ReceivePacketFunc)  {
 */
 
 //需要继承实现具体的处理逻辑
+func (c *Wormhole) Init() {
+    print("wormhole don't implent init()")
+}
+
+
 func (c *Wormhole) ProcessPackets(dps []*RoutePacket) {
-    print("wormhole don't implent")
+    print("wormhole don't implentpent processpackets()")
 }
 
 
@@ -155,7 +160,7 @@ func (wh *Wormhole) SendPacket(packet *RoutePacket) {
 
 /*
 func (wh *Wormhole) Broadcast(packet *RoutePacket) {
-    wh.manager.Broadcast(packet)
+    wh.wormholes.Broadcast(packet)
 }
 */
 
@@ -187,12 +192,12 @@ func (wh *Wormhole) Broadcast(guin TID, data []byte) {
         //Data:   data,
     //}
 
-    wh.manager.Broadcast(guin, data)
+    wh.wormholes.Broadcast(guin, data)
 }
 
 
 func (wh *Wormhole) GetManager() IWormholeManager {
-    return wh.manager
+    return wh.wormholes
 }
 
 

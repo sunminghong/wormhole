@@ -7,14 +7,9 @@
 =============================================================================*/
 
 
-/*
-
-*/
-
 package wormhole
 
 import (
-    "encoding/binary"
     gts "github.com/sunminghong/gotools"
 )
 
@@ -24,35 +19,28 @@ const (
 )
 
 type RoutePack struct {
-    endian int
-    Endianer gts.IEndianer
+    endianer gts.IEndianer
 }
 
-func NewRoutePack(endian int ) *RoutePack {
-    dg := &RoutePack{}
+func NewRoutePack(endianer gts.IEndianer) *RoutePack {
+    dg := &RoutePack{endianer : endianer}
 
-    dg.SetEndian(endian)
     return dg
 }
 
-func (d *RoutePack) GetEndian() int {
-    return d.endian
+func (d *RoutePack) GetEndianer() gts.IEndianer {
+    return d.endianer
 }
 
 func (d *RoutePack) Clone() IRoutePack {
     dg := &RoutePack{}
 
-    dg.SetEndian(d.endian)
+    dg.SetEndianer(d.endianer)
     return dg
 }
 
-func (d *RoutePack) SetEndian(endian int) {
-    d.endian = endian
-    if endian == gts.BigEndian {
-        d.Endianer = binary.BigEndian
-    } else {
-        d.Endianer = binary.LittleEndian
-    }
+func (d *RoutePack) SetEndianer(endianer gts.IEndianer) {
+    d.endianer = endianer
 }
 
 func (d *RoutePack) encrypt(plan []byte){
@@ -130,7 +118,7 @@ func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
 
             if head[0]==mask1 && head[1]==mask2 {
                 dataType = head[2]
-                _dpSize := d.Endianer.Uint32(head[3:])
+                _dpSize := d.endianer.Uint32(head[3:])
                 //Trace("dataType,dpSize,endian",dataType,_dpSize,cs.Endian)
 
                 dpSize = int(_dpSize)
@@ -159,7 +147,7 @@ func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
             dp := &RoutePacket{Type:ERouteType(dataType)}
 
             if dataType & 1 == 1 {
-                dp.Guin = TID(d.Endianer.Uint32(data[dpSize-4:]))
+                dp.Guin = TID(d.endianer.Uint32(data[dpSize-4:]))
                 dp.Data = data[:dpSize-4]
             } else {
                 dp.Data = data
@@ -200,7 +188,7 @@ func (d *RoutePack) packHeader(dp *RoutePacket) []byte {
     buf[1] = byte(mask2)
     buf[2] = byte(dp.Type)
 
-    d.Endianer.PutUint32(buf[3:], uint32(ilen))
+    d.endianer.PutUint32(buf[3:], uint32(ilen))
 
     d.encrypt(buf)
 
@@ -221,7 +209,7 @@ func (d *RoutePack) Pack(dp *RoutePacket) []byte {
     copy(buf[7:], dp.Data)
 
     if dp.Type & 1 == 1 {
-        d.Endianer.PutUint32(buf[7 + ilen - TIDSize:], uint32(dp.Guin))
+        d.endianer.PutUint32(buf[7 + ilen - TIDSize:], uint32(dp.Guin))
     }
     return buf
 }
@@ -236,7 +224,7 @@ func (d *RoutePack) PackWrite(write WriteFunc,dp *RoutePacket) {
 
     if dp.Type & 1 == 1 {
         cbuf := make([]byte,4)
-        d.Endianer.PutUint32(cbuf, uint32(dp.Guin))
+        d.endianer.PutUint32(cbuf, uint32(dp.Guin))
         write(cbuf)
     }
 }

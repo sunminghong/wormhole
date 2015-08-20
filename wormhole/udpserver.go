@@ -36,7 +36,7 @@ type UdpServer struct {
 }
 
 
-type NewUdpConnectionFunc func (newcid int, conn *net.UDPConn, endian int, userAddr *net.UDPAddr) *UdpConnection
+type NewUdpConnectionFunc func (newcid int, conn *net.UDPConn, endianer gts.IEndianer, userAddr *net.UDPAddr) *UdpConnection
 
 
 func NewUdpServer(
@@ -89,7 +89,7 @@ func (s *UdpServer) Start() {
                 udpConn := s.makeConn(
                     newcid,
                     sock,
-                    s.RoutePackHandle.GetEndian(),
+                    s.RoutePackHandle.GetEndianer(),
                     fromAddr,
                 )
 

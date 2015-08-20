@@ -43,7 +43,7 @@ type UdpConnection struct {
 
 
 // new Transport object
-func NewUdpConnection(newcid int, conn *net.UDPConn, endian int, userAddr *net.UDPAddr) *UdpConnection {
+func NewUdpConnection(newcid int, conn *net.UDPConn, endianer gts.IEndianer, userAddr *net.UDPAddr) *UdpConnection {
     c := &UdpConnection {
         id:      newcid,
         conn:     conn,
@@ -55,7 +55,7 @@ func NewUdpConnection(newcid int, conn *net.UDPConn, endian int, userAddr *net.U
         quit:     make(chan bool),
         Quit:     make(chan bool),
 
-        stream:   gts.NewRWStream(1024, endian),
+        stream:   gts.NewRWStream(1024, endianer),
     }
 
     c.stream.Reset()

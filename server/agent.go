@@ -14,21 +14,10 @@ logic 代理连接服务器，接受玩家客户端连接
 package server
 
 import (
-    //"net"
-    //"strconv"
-    //"time"
-    //"fmt"
-    //"strings"
-
-    //iniconfig "github.com/sunminghong/iniconfig"
     gts "github.com/sunminghong/gotools"
 
     . "wormhole/wormhole"
 )
-
-func MakeClientWormhole() {
-
-}
 
 
 type Agent struct {
@@ -50,8 +39,8 @@ type Agent struct {
     makeLogicWormhole NewWormholeFunc
     */
 
-    clientWormholes IWormholeManager
-    logicWormholes IWormholeManager
+    ClientWormholes IWormholeManager
+    LogicWormholes IWormholeManager
 
     clientServer *Server
     logicServer *Server
@@ -79,11 +68,14 @@ func NewAgent(
         //makeClientWormhole: makeClientWormhole,
         //makeLogicWormhole: makeLogicWormhole,
 
-        maxConnections : maxConnections,
+        ClientWormholes : clientWormholes,
+        LogicWormholes : logicWormholes,
 
-        clientWormholes: clientWormholes,
-        logicWormholes: logicWormholes,
+        maxConnections : maxConnections,
     }
+
+    clientWormholes.SetServer(s)
+    logicWormholes.SetServer(s)
 
     s.clientServer = NewServer(
         name, serverid, EWORMHOLE_TYPE_AGENT,
@@ -96,6 +88,11 @@ func NewAgent(
         routepack, logicWormholes, makeLogicWormhole)
 
     return s
+}
+
+
+func (s *Agent) GetServerId() int {
+    return s.ServerId
 }
 
 

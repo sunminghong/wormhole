@@ -69,12 +69,13 @@ func NewClient(
 
     c.wormType = wormType
 
+    c.Connect()
     return c
 }
 
 
 func (c *Client) Connect() {
-    c.tcpConn = NewTcpConnection(1, nil, c.routepack.GetEndian())
+    c.tcpConn = NewTcpConnection(1, nil, c.routepack.GetEndianer())
     c.tcpConn.SetReceiveCallback(c.receiveTcpBytes)
 
     if c.tcpConn.Connect(c.tcpAddr) {
@@ -89,6 +90,11 @@ func (c *Client) Connect() {
         }
         c.tcpConn.Send(c.routepack.Pack(packet))
     }
+}
+
+
+func (c *Client) GetWormhole() IWormhole {
+    return c.wormhole
 }
 
 
@@ -111,12 +117,13 @@ func (c *Client) receiveTcpPackets(conn IConnection, dps []*RoutePacket) {
         if dp.Type == EPACKET_TYPE_HELLO {
             c.guin = dp.Guin
             c.initWormhole(dp, conn)
+            c.wormhole.Init()
 
         } else if dp.Type == EPACKET_TYPE_UDP_SERVER {
             c.guin = dp.Guin
 
             //连接udp server
-            c.udpConn = NewUdpConnection(1, nil, c.routepack.GetEndian(), nil)
+            c.udpConn = NewUdpConnection(1, nil, c.routepack.GetEndianer(), nil)
 
             if c.udpConn.Connect(c.udpAddr) {
                 gts.Info("dial to udp server success:%s", c.udpAddr)

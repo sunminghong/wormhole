@@ -80,6 +80,11 @@ func NewServer(
 }
 
 
+func (s *Server) GetServerId() int {
+    return s.ServerId
+}
+
+
 func (s *Server) Start() {
     gts.Info(s.Name +" is starting...")
     s.stop=false
