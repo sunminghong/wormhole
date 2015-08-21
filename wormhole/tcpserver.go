@@ -113,7 +113,8 @@ func (s *TcpServer) receiveBytes(conn IConnection) {
 func (s *TcpServer) receivePackets(conn IConnection, dps []*RoutePacket) {
     for _, dp := range dps {
         if dp.Type == EPACKET_TYPE_HELLO {
-             //接到连接方hello包
+            gts.Trace("server receive tcp hello:%q", dp)
+
             var guin int
             var wh IWormhole
 
@@ -132,7 +133,7 @@ func (s *TcpServer) receivePackets(conn IConnection, dps []*RoutePacket) {
                 }
             }
             if wh == nil {
-                guin := GetGuin(s.ServerId, int(conn.GetId()))
+                guin := GenerateGuin(s.ServerId, int(conn.GetId()))
                 wh = s.makeWormhole(guin, s.Wormholes, s.RoutePackHandle)
             }
 
@@ -169,6 +170,7 @@ func (s *TcpServer) receivePackets(conn IConnection, dps []*RoutePacket) {
             }
             wh.SendPacket(packet)
 
+            gts.Trace("server send back hello:%q", packet)
             break
         }
     }

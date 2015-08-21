@@ -27,13 +27,13 @@ import (
 )
 
 
-func Parse(guin int) (serverId int, id int, check int) {
+func ParseGuin(guin int) (serverId int, id int, check int) {
     uin := int(guin)
     return uin & 0x1f, (uin >> 5) & 0x3fff, (uin >> 19) & 0x1fff
 }
 
 
-func GetGuin(serverId int, id int) int {
+func GenerateGuin(serverId int, id int) int {
     //check := gm.r.Intn(0x1fff - 1)
     check := int(time.Now().UnixNano() & 0x1fff)
 
@@ -66,7 +66,7 @@ func(gm *GuinMaker) GenerateGuin(serverId int) int {
         return 0
     }
 
-    return GetGuin(serverId, id)
+    return GenerateGuin(serverId, id)
 }
 
 

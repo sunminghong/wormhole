@@ -155,7 +155,7 @@ const (
 type EWormholeType byte
 const (
     EWORMHOLE_TYPE_CLIENT EWormholeType = iota
-    EWORMHOLE_TYPE_GAMESERVER
+    EWORMHOLE_TYPE_LOGIC
     EWORMHOLE_TYPE_AGENT
     EWORMHOLE_TYPE_CONSOLE
 )
@@ -163,7 +163,7 @@ const (
 /*
 type EServerType byte
 const (
-    ESERVER_TYPE_GAMESERVER EServerType = iota + 1
+    ESERVER_TYPE_LOGIC EServerType = iota + 1
     ESERVER_TYPE_AGENT
     ESERVER_TYPE_CONSOLE
 )

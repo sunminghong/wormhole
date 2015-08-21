@@ -14,11 +14,7 @@ logic server connect to agent
 package server
 
 import (
-    //"net"
-    //"strconv"
-    //"time"
-    //"fmt"
-    //"strings"
+    gts "github.com/sunminghong/gotools"
 
     . "wormhole/wormhole"
 )
@@ -30,8 +26,10 @@ type LogicToAgentWormhole struct {
 }
 
 func NewLogicToAgentWormhole(guin int, manager IWormholeManager, routepack IRoutePack) *LogicToAgentWormhole {
+    agentId, _,_ := ParseGuin(guin)
+
     aw := &LogicToAgentWormhole {
-        Wormhole : NewWormhole(guin, manager, routepack),
+        Wormhole : NewWormhole(agentId, manager, routepack),
         group : "",
     }
 
@@ -42,6 +40,7 @@ func NewLogicToAgentWormhole(guin int, manager IWormholeManager, routepack IRout
 func (aw *LogicToAgentWormhole) SetGroup(group string) {
     aw.group = group
 
+    gts.Trace("logic register to agent:group(%s)", group)
     packet := &RoutePacket {
         Type:   EPACKET_TYPE_LOGIC_REGISTER,
         Guin:   0,
@@ -57,7 +56,7 @@ func (aw *LogicToAgentWormhole) Init() {
 
 
 func (aw *LogicToAgentWormhole) ProcessPackets(dps []*RoutePacket) {
-    print("agentwormhole processpackets receive %d route packets", len(dps))
+    gts.Trace("agentwormhole processpackets receive %d route packets", len(dps))
 }
 
 

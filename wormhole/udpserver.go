@@ -121,6 +121,7 @@ func (s *UdpServer) receiveUdpBytes(conn IConnection) {
 func (s *UdpServer) receiveUdpPackets(conn IConnection, dps []*RoutePacket) {
     for _, dp := range dps {
         if dp.Type == EPACKET_TYPE_HELLO {
+            gts.Trace("server receive udp hello:%q", dp)
              //接到连接方hello包
             var guin int
             var wh IWormhole
@@ -139,7 +140,7 @@ func (s *UdpServer) receiveUdpPackets(conn IConnection, dps []*RoutePacket) {
                     }
                 }
             } else {
-                guin = GetGuin(s.ServerId, int(conn.GetId()))
+                guin = GenerateGuin(s.ServerId, int(conn.GetId()))
             }
             if wh == nil {
                 wh = s.makeWormhole(guin, s.Wormholes, s.RoutePackHandle)
@@ -150,7 +151,7 @@ func (s *UdpServer) receiveUdpPackets(conn IConnection, dps []*RoutePacket) {
             //并且connection的receivebytes将被wormhole接管
             //该函数将不会被该connection调用
             wh.AddConnection(conn, ECONN_TYPE_DATA)
-            gts.Debug("has clients:",s.Wormholes.Length())
+            gts.Trace("has clients:",s.Wormholes.Length())
 
 
             fromType := EWormholeType(dp.Data[0])

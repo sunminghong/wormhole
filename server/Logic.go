@@ -1,5 +1,5 @@
 /*=============================================================================
-#     FileName: client.go
+#     FileName: logic.go
 #       Author: sunminghong, allen.fantasy@gmail.com, http://weibo.com/5d13
 #         Team: http://1201.us
 #   LastChange: 2015-08-18 15:52:20
@@ -15,13 +15,10 @@ package server
 
 
 import (
-    //"reflect"
-    //"strconv"
-    //"net"
-    //"time"
-    //"math/rand"
+    "strconv"
 
-    //gts "github.com/sunminghong/gotools"
+    iniconfig "github.com/sunminghong/iniconfig"
+    gts "github.com/sunminghong/gotools"
 
     . "wormhole/wormhole"
 )
@@ -36,14 +33,14 @@ type Logic struct {
     serverType EWormholeType
     serverId int
 
-    clients map[string]*Client
+    logics map[string]*Client
 
     group string
 }
 
 
 func NewLogic(
-    name string, serverId int,serverType EWormholeType,
+    name string, serverId int,
     routepack IRoutePack, wm IWormholeManager,
     makeWormhole NewWormholeFunc, group string) *Logic {
 
@@ -53,7 +50,7 @@ func NewLogic(
         serverId: serverId,
         makeWormhole: makeWormhole,
         wormholes: wm,
-        serverType: serverType,
+        serverType: EWORMHOLE_TYPE_LOGIC,
         group : group,
     }
 
@@ -66,17 +63,113 @@ func (ls *Logic) ConnectAgent(tcpAddr string, udpAddr string) {
         ls.makeWormhole, ls.serverType)
 
     c.GetWormhole().(*LogicToAgentWormhole).SetGroup(ls.group)
-    ls.clients[tcpAddr] = c
+    ls.logics[tcpAddr] = c
 }
 
 
 func (ls *Logic) Close() {
-    //for c := range ls.clients {
+    //for c := range ls.logics {
         //c.Close()
     //}
 
-    //ls.clients.Clear()
+    //ls.logics.Clear()
 
     ls.wormholes.CloseAll()
 }
+
+
+func NewLogicFromIni(
+    c *iniconfig.ConfigFile,
+    routepack IRoutePack, wm IWormholeManager,
+    makeWormhole NewWormholeFunc) *Logic {
+
+    section := "Default"
+
+    logconf, err := c.GetString(section,"logConfigFile")
+    if err != nil {
+        logconf = ""
+    }
+    gts.SetLogger(&logconf)
+
+    //start grid service
+    name, err := c.GetString(section, "name")
+    if err != nil {
+        gts.Error(err.Error())
+        return nil
+    }
+
+    serverId, err := c.GetInt(section, "serverId")
+    if err != nil {
+        gts.Error(err.Error())
+        return nil
+    }
+
+    group, err := c.GetString(section, "group")
+    if err != nil {
+        group = "0"
+    }
+
+    endian, err := c.GetInt(section, "endian")
+    if err == nil {
+        routepack.SetEndianer(gts.GetEndianer(endian))
+    } else {
+        routepack.SetEndianer(gts.GetEndianer(gts.LittleEndian))
+    }
+
+    /*
+    autoDuration, err := c.GetInt(section, "autoReconnectDuration")
+    if err != nil {
+        autoDuration = 5
+    }
+    autoReconnectDuration := time.Duration(autoDuration) * time.Second
+    */
+
+    ls := NewLogic( name, serverId, routepack, wm, makeWormhole, group)
+
+    return ls
+}
+
+
+func (ls *Logic) ConnectFromIni(c *iniconfig.ConfigFile) {
+    //make some connection to game server
+    for i := 1; i < 50; i++ {
+        section := "Agent" + strconv.Itoa(i)
+        if !c.HasSection(section) {
+            continue
+        }
+
+        enabled, err := c.GetBool(section, "enabled")
+        if err == nil && !enabled {
+            continue
+        }
+
+        /*
+        serverId, err := c.GetInt(section, "serverId")
+        if err != nil {
+            gts.Error(err.Error())
+            continue
+        }
+
+        gname, err := c.GetString(section, "name")
+        if err != nil {
+            gts.Error(err.Error())
+            continue
+        }
+        */
+
+        tcpAddr, err := c.GetString(section, "tcpAddr")
+        if err != nil {
+            gts.Error(err.Error())
+            continue
+        }
+
+        udpAddr, err := c.GetString(section, "udpAddr")
+        if err != nil {
+            gts.Warn(err.Error())
+        }
+
+        ls.ConnectAgent(tcpAddr, udpAddr)
+    }
+}
+
 

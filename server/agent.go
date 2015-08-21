@@ -156,8 +156,7 @@ func NewAgentFromIni(
 
     clientUdpAddr, err := c.GetString(section, "clientUdpAddr")
     if err != nil {
-        gts.Error(err.Error())
-        return nil
+        gts.Warn(err.Error())
     }
 
     logicTcpAddr, err := c.GetString(section, "logicTcpAddr")
@@ -168,8 +167,7 @@ func NewAgentFromIni(
 
     logicUdpAddr, err := c.GetString(section, "logicUdpAddr")
     if err != nil {
-        gts.Error(err.Error())
-        return nil
+        gts.Warn(err.Error())
     }
 
     maxConnections, err := c.GetInt(section, "maxConnections")

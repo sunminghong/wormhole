@@ -82,6 +82,7 @@ func (c *Client) Connect() {
         //连接上服务器
         gts.Info("连接上tcpserver：%s", c.tcpAddr)
 
+        gts.Trace("client send tcp hello:%s, wormtype:%d", c.tcpAddr, c.wormType)
         //hello to tcp server
         packet := &RoutePacket {
             Type:   EPACKET_TYPE_HELLO,
@@ -115,6 +116,7 @@ func (c *Client) receiveTcpBytes(conn IConnection) {
 func (c *Client) receiveTcpPackets(conn IConnection, dps []*RoutePacket) {
     for _, dp := range dps {
         if dp.Type == EPACKET_TYPE_HELLO {
+            gts.Trace("client receive tcp hello:%q", dp)
             c.guin = dp.Guin
             c.initWormhole(dp, conn)
             c.wormhole.Init()
@@ -127,6 +129,7 @@ func (c *Client) receiveTcpPackets(conn IConnection, dps []*RoutePacket) {
 
             if c.udpConn.Connect(c.udpAddr) {
                 gts.Info("dial to udp server success:%s", c.udpAddr)
+                gts.Trace("client send udp hello:%s, wormtype:%d", c.udpAddr, c.wormType)
 
                 //hello to tcp server
                 packet := &RoutePacket {
