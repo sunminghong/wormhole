@@ -26,9 +26,9 @@ type AgentManager struct {
 }
 
 
-func NewAgentManager(routepack IRoutePack, fromType EWormholeType) *AgentManager {
+func NewAgentManager(routepack IRoutePack) *AgentManager {
     wm := &AgentManager {
-        WormholeManager: NewWormholeManager(routepack, 100, fromType),
+        WormholeManager: NewWormholeManager(routepack, 100, EWORMHOLE_TYPE_AGENT),
     }
     return wm
 }

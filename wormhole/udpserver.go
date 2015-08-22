@@ -51,6 +51,7 @@ func NewUdpServer(
             name,serverid, serverType, addr, maxConnections, routePack, wm),
         makeConn: makeConn,
         makeWormhole: makeWormhole,
+        udpAddrs: make(map[*net.UDPAddr]*UdpConnection),
     }
 
     s.udp_read_buffer_size = 1024
@@ -65,53 +66,55 @@ func (s *UdpServer) Start() {
         gts.Error("udp server addr(%s) is error:%q", s.Addr, err)
 		return
 	}
+
+    gts.Info(s.Name +" udpserver is starting...")
 	sock, _err := net.ListenUDP("udp", udpAddr)
 	if _err != nil {
         gts.Error("udp server addr(%s) is error2:%q", s.Addr, err)
         return
 	}
 
-    defer sock.Close()
+    go func() {
+        for {
+            defer sock.Close()
+            if s.Stop_ {
+                return
+            }
 
-	for {
-        if s.Stop_ {
-            return
+            buffer := make([]byte, s.udp_read_buffer_size)
+            n, fromAddr, err := sock.ReadFromUDP(buffer)
+            if err == nil {
+                //log.Println("recv", n, from)
+                gts.Trace("udp connect from :%s", fromAddr)
+                udpConn, ok:= s.udpAddrs[fromAddr]
+                if !ok {
+                    newcid := s.AllocId()
+                    udpConn = s.makeConn(
+                        newcid,
+                        sock,
+                        s.RoutePackHandle.GetEndianer(),
+                        fromAddr,
+                    )
+
+                    udpConn.SetReceiveCallback(s.receiveUdpBytes)
+                    s.udpAddrs[fromAddr] = udpConn
+                }
+
+                udpConn.ConnReader(buffer[0:n])
+            } else {
+                e, ok := err.(net.Error)
+                if !ok || !e.Timeout() {
+                    gts.Trace("recv error", err.Error(), fromAddr)
+                    delete(s.udpAddrs, fromAddr)
+                }
+            }
         }
-
-        buffer := make([]byte, s.udp_read_buffer_size)
-		n, fromAddr, err := sock.ReadFromUDP(buffer)
-		if err == nil {
-			//log.Println("recv", n, from)
-            gts.Trace("udp connect from :%s", fromAddr)
-			udpConn, ok:= s.udpAddrs[fromAddr]
-			if !ok {
-                newcid := s.AllocId()
-                udpConn := s.makeConn(
-                    newcid,
-                    sock,
-                    s.RoutePackHandle.GetEndianer(),
-                    fromAddr,
-                )
-
-                udpConn.SetReceiveCallback(s.receiveUdpBytes)
-                s.udpAddrs[fromAddr] = udpConn
-			}
-
-            udpConn.ConnReader(buffer[0:n])
-
-			//log.Println("debug out.........")
-		} else {
-			e, ok := err.(net.Error)
-			if !ok || !e.Timeout() {
-				gts.Trace("recv error", err.Error(), fromAddr)
-				delete(s.udpAddrs, fromAddr)
-			}
-		}
-	}
+    }()
 }
 
 func (s *UdpServer) receiveUdpBytes(conn IConnection) {
-    n, dps := s.RoutePackHandle.Fetch(conn)
+    gts.Trace("udp server receiveBytes:% X", conn.GetBuffer().Stream.Bytes())
+    n, dps := s.RoutePackHandle.Fetch(conn.GetBuffer())
     if n > 0 {
         s.receiveUdpPackets(conn, dps)
     }
@@ -151,7 +154,7 @@ func (s *UdpServer) receiveUdpPackets(conn IConnection, dps []*RoutePacket) {
             //并且connection的receivebytes将被wormhole接管
             //该函数将不会被该connection调用
             wh.AddConnection(conn, ECONN_TYPE_DATA)
-            gts.Trace("has clients:",s.Wormholes.Length())
+            gts.Trace("has wormholes:",s.Wormholes.Length())
 
 
             fromType := EWormholeType(dp.Data[0])

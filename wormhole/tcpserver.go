@@ -60,7 +60,7 @@ func (s *TcpServer) SetUdpAddr(udpAddr string) {
 
 
 func (s *TcpServer) Start() {
-    gts.Info(s.Name +" is starting...")
+    gts.Info(s.Name +" tcpserver is starting...")
 
     s.Stop_=false
     //todo: MaxConns don't proccess
@@ -71,39 +71,44 @@ func (s *TcpServer) Start() {
     }
 
     gts.Info("listen with :", s.Addr)
-    gts.Info(s.Name +" is started !!!")
+    gts.Info(s.Name +" tcpserver is started !!!")
 
-    //defer函数退出时执行
-    defer netListen.Close()
-    for {
-        gts.Trace("Waiting for connection")
-        if s.Stop_ {
-            break
-        }
+    go func() {
+        //defer函数退出时执行
+        defer netListen.Close()
 
-        connection, err := netListen.Accept()
+        for {
+            gts.Trace("Waiting for connection")
+            if s.Stop_ {
+                break
+            }
 
-        if err != nil {
-            gts.Error("Transport error: ", err)
-        } else {
-            gts.Debug("%v is connection!",connection.RemoteAddr())
+            connection, err := netListen.Accept()
 
-            newcid := s.AllocId()
-            if newcid == 0 {
-                gts.Warn("connection num is more than ",s.MaxConns)
+            if err != nil {
+                gts.Error("Transport error: ", err)
             } else {
-                gts.Trace("//////////////////////newcid:",newcid)
-                tcpConn := s.makeConn(newcid, connection,
-                    s.RoutePackHandle.GetEndianer())
-                tcpConn.SetReceiveCallback(s.receiveBytes)
+                gts.Debug("%v is connection!",connection.RemoteAddr())
+
+                newcid := s.AllocId()
+                if newcid == 0 {
+                    gts.Warn("connection num is more than ",s.MaxConns)
+                } else {
+                    gts.Trace("//////////////////////newcid:",newcid)
+                    tcpConn := s.makeConn(newcid, connection,
+                        s.RoutePackHandle.GetEndianer())
+                    tcpConn.SetReceiveCallback(s.receiveBytes)
+                }
             }
         }
-    }
+    }()
 }
 
 
 func (s *TcpServer) receiveBytes(conn IConnection) {
-    n, dps := s.RoutePackHandle.Fetch(conn)
+    gts.Trace("tcp server receiveBytes:% X", conn.GetBuffer().Stream.Bytes())
+    n, dps := s.RoutePackHandle.Fetch(conn.GetBuffer())
+    gts.Trace("tcp server receivePackets:", n)
     if n > 0 {
         s.receivePackets(conn, dps)
     }
@@ -133,7 +138,7 @@ func (s *TcpServer) receivePackets(conn IConnection, dps []*RoutePacket) {
                 }
             }
             if wh == nil {
-                guin := GenerateGuin(s.ServerId, int(conn.GetId()))
+                guin = GenerateGuin(s.ServerId, int(conn.GetId()))
                 wh = s.makeWormhole(guin, s.Wormholes, s.RoutePackHandle)
             }
 
@@ -143,7 +148,6 @@ func (s *TcpServer) receivePackets(conn IConnection, dps []*RoutePacket) {
             wh.AddConnection(conn, ECONN_TYPE_CTRL)
             s.Wormholes.Add(wh)
             gts.Debug("has clients:",s.Wormholes.Length())
-
 
             fromType := EWormholeType(dp.Data[0])
             wh.SetFromType(fromType)
@@ -159,18 +163,18 @@ func (s *TcpServer) receivePackets(conn IConnection, dps []*RoutePacket) {
                 Guin:   guin,
                 Data:   []byte{byte(s.ServerType)},
             }
+            wh.SendPacket(packet)
 
             wh.Init()
 
             //hello udp addr to client
-            if len(s.udpAddr) == 0 {
+            if len(s.udpAddr) > 0 {
                 packet.Type = EPACKET_TYPE_UDP_SERVER
                 packet.Data = []byte(s.udpAddr)
                 wh.SendPacket(packet)
             }
-            wh.SendPacket(packet)
 
-            gts.Trace("server send back hello:%q", packet)
+            gts.Trace("server send back hello:,%s,%q",s.udpAddr, packet)
             break
         }
     }

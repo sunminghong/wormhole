@@ -58,29 +58,25 @@ func (d *RoutePack) decrypt(plan []byte){
 }
 
 
-//flag1(byte)+flag2(byte)+datatype(byte)+data(datasize(int32)+body)+fromcid(int32)
+//flag1(byte)+flag2(byte)+datatype(byte)[+guin(int32)]+data(datasize(int32)+body)
 //对数据进行拆包
-func (d *RoutePack) Fetch(c IConnection) (n int, dps []*RoutePacket) {
-    return d.fetchTcp(c)
-}
-
-func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
+//func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
+func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
     dps = []*RoutePacket{}
 
-    c := ci.(*TcpConnection)
-    cs := c.GetStream()
+    //c := ci.(*TcpConnection)
+
+    cs := c.Stream
     ilen := cs.Len()
     if ilen == 0 {
         return
     }
 
-    var dpSize int
-    //var m1,m2 byte
-    var dataType byte
+    var dpSize, guin int
+    var routeType byte
 
     for {
         pos := cs.GetPos()
-        //Log("pos:",pos)
 
         //拆包
         if c.DPSize > 0 {
@@ -89,7 +85,7 @@ func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
                 return
             }
             dpSize = c.DPSize
-            dataType = c.RouteType
+            routeType = c.RouteType
         } else {
             //Trace("ilen,pos:%d,%d",ilen,pos)
             if ilen-pos < 7 {
@@ -105,7 +101,7 @@ func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
             m2,_ := cs.ReadByte()
             //Trace("m1,m2",m1,m2)
             if m1==mask1 && m2==mask2 {
-                dataType,_ = cs.ReadByte()
+                routeType,_ = cs.ReadByte()
                 _dpSize,err := cs.ReadUint32()
 
                 if err != nil {
@@ -117,24 +113,30 @@ func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
             */
 
             if head[0]==mask1 && head[1]==mask2 {
-                dataType = head[2]
-                _dpSize := d.endianer.Uint32(head[3:])
-                //Trace("dataType,dpSize,endian",dataType,_dpSize,cs.Endian)
-
-                dpSize = int(_dpSize)
-                if dataType & 1 == 1 {
-                    dpSize += 4
+                routeType = head[2]
+                _dpSize := 0
+                if routeType & 1 == 1 {
+                    guin = int(d.endianer.Uint32(head[3:]))
+                    if ilen - pos < 4 {
+                        return
+                    }
+                    head2,_ := cs.Read(4)
+                    _dpSize = int(d.endianer.Uint32(head2))
+                } else {
+                    _dpSize = int(d.endianer.Uint32(head[3:]))
                 }
+
+                dpSize = _dpSize
 
                 pos = cs.GetPos()
                 //Trace("ilen,pos,dpSize",ilen,pos,dpSize)
                 if ilen - pos < dpSize {
+                    c.Guin = guin
                     c.DPSize = dpSize
-                    c.RouteType = dataType
+                    c.RouteType = routeType
 
                     return
                 }
-
             } else {
                 //如果错位则将缓存数据抛弃
                 cs.Reset()
@@ -144,14 +146,23 @@ func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
 
         data,size := cs.Read(dpSize)
         if size > 0 {
-            dp := &RoutePacket{Type:ERouteType(dataType)}
+            dp := &RoutePacket{
+                Type:ERouteType(routeType),
+                Guin: guin,
+                Data: data,
+                }
 
-            if dataType & 1 == 1 {
-                dp.Guin = int(d.endianer.Uint32(data[dpSize-4:]))
-                dp.Data = data[:dpSize-4]
+            /*
+            if routeType & 1 == 1 {
+                //dp.Guin = int(d.endianer.Uint32(data[dpSize-4:]))
+                //dp.Data = data[:dpSize-4]
+                dp.Guin = int(d.endianer.Uint32(data))
+                dp.Data = data[4:]
             } else {
                 dp.Data = data
             }
+            dp.Guin = guin
+            */
 
             dps = append(dps,dp)
             n += 1
@@ -177,18 +188,21 @@ func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
 
 //对数据进行封包
 func (d *RoutePack) packHeader(dp *RoutePacket) []byte {
-    ilen := len(dp.Data)
-
+    glen := 0
     if dp.Type & 1 == 1 {
-        ilen += TIDSize
+        glen = TIDSize
     }
-    buf := make([]byte, ilen+7)
+    buf := make([]byte, 7 + glen)
 
     buf[0] = byte(mask1)
     buf[1] = byte(mask2)
     buf[2] = byte(dp.Type)
+    ilen := len(dp.Data)
 
-    d.endianer.PutUint32(buf[3:], uint32(ilen))
+    if dp.Type & 1 == 1 {
+        d.endianer.PutUint32(buf[3:], uint32(dp.Guin))
+    }
+    d.endianer.PutUint32(buf[3 + glen:], uint32(ilen))
 
     d.encrypt(buf)
 
@@ -201,16 +215,13 @@ func (d *RoutePack) Pack(dp *RoutePacket) []byte {
     head := d.packHeader(dp)
 
     ilen := len(dp.Data)
+    glen := 0
     if dp.Type & 1 == 1 {
-        ilen += TIDSize
+        glen = TIDSize
     }
-    buf := make([]byte, 7 + ilen)
+    buf := make([]byte, 7 + glen + ilen)
     copy(buf,head)
-    copy(buf[7:], dp.Data)
-
-    if dp.Type & 1 == 1 {
-        d.endianer.PutUint32(buf[7 + ilen - TIDSize:], uint32(dp.Guin))
-    }
+    copy(buf[7+glen:], dp.Data)
     return buf
 }
 
@@ -221,12 +232,6 @@ func (d *RoutePack) PackWrite(write WriteFunc,dp *RoutePacket) {
 
     write(head)
     write(dp.Data)
-
-    if dp.Type & 1 == 1 {
-        cbuf := make([]byte,4)
-        d.endianer.PutUint32(cbuf, uint32(dp.Guin))
-        write(cbuf)
-    }
 }
 
 

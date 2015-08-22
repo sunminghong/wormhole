@@ -73,6 +73,7 @@ func NewServer(
     }
 
     s.tcpServer = NewTcpServer(name, serverid, serverType, tcpAddr, maxConnections, routepack, wm, makeWormhole, NewTcpConnection)
+    s.tcpServer.SetUdpAddr(udpAddr)
 
     s.udpServer = NewUdpServer(name, serverid, serverType, udpAddr, maxConnections, routepack, wm, makeWormhole, NewUdpConnection)
 
@@ -89,10 +90,10 @@ func (s *Server) Start() {
     gts.Info(s.Name +" is starting...")
     s.stop=false
 
-    if len(s.tcpAddr) == 0 {
+    if len(s.tcpAddr) > 0 {
         s.tcpServer.Start()
     }
-    if len(s.udpAddr) == 0 {
+    if len(s.udpAddr) > 0 {
         s.udpServer.Start()
     }
 }

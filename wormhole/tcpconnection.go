@@ -16,14 +16,19 @@ import (
 
 // Connection  
 type TcpConnection struct {
+    *ConnectionBuffer
+
     read_buffer_size int
     connectionType EConnType
     id int
     conn net.Conn
 
+/*
     stream *gts.RWStream
+    Guin int
     DPSize  int
     RouteType byte
+    */
 
     //receivePacketCallback ReceivePacketFunc
     receiveCallback ReceiveFunc
@@ -43,22 +48,23 @@ type TcpConnection struct {
 // new Transport object
 func NewTcpConnection(newcid int, conn net.Conn, endianer gts.IEndianer) *TcpConnection {
     c := &TcpConnection {
+        ConnectionBuffer: &ConnectionBuffer{Stream:   gts.NewRWStream(1024, endianer)},
         id:      newcid,
         conn:     conn,
+        read_buffer_size: 1024,
 
         outgoing: make(chan *RoutePacket, 1),
         outgoingBytes: make(chan []byte),
         quit:     make(chan bool),
         Quit:     make(chan bool),
 
-        stream:   gts.NewRWStream(1024, endianer),
     }
 
-    c.stream.Reset()
-
-    //创建go的线程 使用Goroutine
-    go c.ConnSender()
-    go c.ConnReader()
+    if c.conn != nil {
+        //创建go的线程 使用Goroutine
+        go c.ConnSender()
+        go c.ConnReader()
+    }
 
     return c
 }
@@ -68,24 +74,31 @@ func (c *TcpConnection) GetId() int {
 }
 
 
+func (c *TcpConnection) GetBuffer() *ConnectionBuffer {
+    return c.ConnectionBuffer
+}
+
+/*
 func (c *TcpConnection) GetStream() IStream {
     return c.stream
 }
+*/
 
 
 func (c *TcpConnection) Connect(addr string) bool {
-    gts.Info("connect to grid:", addr)
+    gts.Trace("connect to tcpserver[info]:", addr)
 
     conn, err := net.Dial("tcp", addr)
     if err != nil {
+        print(err)
         gts.Warn("net.Dial to %s:%q",addr, err)
         return false
     } else {
-        gts.Info("pool dial to %s is ok. ", addr)
+        gts.Trace("tcp dial to %s is ok. ", addr)
     }
 
-    go func() {
-        defer conn.Close()
+    //go func() {
+        //defer conn.Close()
 
         c.conn = conn
 
@@ -93,26 +106,28 @@ func (c *TcpConnection) Connect(addr string) bool {
         go c.ConnSender()
         go c.ConnReader()
 
-        gts.Info("be connected to grid ", addr)
-
-        <-c.Quit
-    }()
+        //<-c.Quit
+    //}()
     return true
 }
 
+
 func (c *TcpConnection) ConnReader() {
+    gts.Trace("read_buffer_size:", c.read_buffer_size)
     buffer := make([]byte, c.read_buffer_size)
     for {
         bytesRead, err := c.conn.Read(buffer)
 
         if err != nil {
-            c.closeCallback(c.id)
+            gts.Error("tcpconnection connreader error: ", err, bytesRead)
+            if c.closeCallback != nil {
+                c.closeCallback(c.id)
+            }
             break
         }
 
-        //gts.Trace("pool ConnReader read to buff:", bytesRead)
-        gts.Trace("pool ConnReader read to buff:",bytesRead)
-        c.stream.Write(buffer[0:bytesRead])
+        gts.Trace("ConnReader read to buff:%d, % X",bytesRead, buffer[:12])
+        c.Stream.Write(buffer[0:bytesRead])
         c.receiveCallback(c)
 
         //gts.Trace("tpool ConnReader Buff:%d", len(c.stream.Bytes()))
@@ -123,7 +138,6 @@ func (c *TcpConnection) ConnReader() {
             //c.receivePacketCallback(c.id, dps)
         //}
     }
-    //Log("TransportReader stopped for ", transport.Cid)
 }
 
 func (c *TcpConnection) ConnSender() {

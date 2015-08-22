@@ -14,13 +14,9 @@ agent to logic
 package server
 
 import (
-    //"net"
-    //"strconv"
-    //"time"
-    //"fmt"
-    //"strings"
-
     . "wormhole/wormhole"
+
+    gts "github.com/sunminghong/gotools"
 )
 
 type AgentToLogicWormhole struct {
@@ -33,20 +29,24 @@ func NewAgentToLogicWormhole(guin int, manager IWormholeManager, routepack IRout
         Wormhole : NewWormhole(guin, manager, routepack),
     }
 
+    aw.RegisterSub(aw)
     return aw
 }
 
 
 func (alw *AgentToLogicWormhole) Init() {
+    gts.Trace("agenttologicwormhole init()")
 }
 
 
 func (alw *AgentToLogicWormhole) ProcessPackets(dps []*RoutePacket) {
-    print("agentwormhole processpackets receive %d route packets", len(dps))
+    gts.Trace("agenttologicwormhole processpackets receive %d route packets", len(dps))
     for _, dp := range dps {
         if dp.Type == EPACKET_TYPE_LOGIC_REGISTER {
             lm := alw.GetManager().(*LogicManager)
             lm.Register(dp.Data, alw)
+        } else {
+            alw.Inherit.CallSub("ProcessPacket", dp)
         }
     }
 }

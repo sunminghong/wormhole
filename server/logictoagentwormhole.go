@@ -46,17 +46,21 @@ func (aw *LogicToAgentWormhole) SetGroup(group string) {
         Guin:   0,
         Data:   []byte(group),
     }
+    gts.Trace("%q", packet)
     aw.SendPacket(packet)
 }
 
 
 func (aw *LogicToAgentWormhole) Init() {
-    print("logictoagentwormhole is init()")
+    gts.Trace("logicToAgentwormhole is init()")
+
+    group := aw.GetManager().GetServer().(*Logic).GetGroup()
+    aw.SetGroup(group)
 }
 
 
 func (aw *LogicToAgentWormhole) ProcessPackets(dps []*RoutePacket) {
-    gts.Trace("agentwormhole processpackets receive %d route packets", len(dps))
+    gts.Trace("logictoagentwormhole processpackets receive %d route packets", len(dps))
 }
 
 

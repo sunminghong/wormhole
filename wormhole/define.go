@@ -46,11 +46,19 @@ const (
 
     EPACKET_TYPE_FORWARD = 20 | 1               //00010101  forward msg to other grid server 
 
-    EPACKET_TYPE_UDP_SERVER = 22
-    EPACKET_TYPE_HELLO = 24  //guin，data里面为发送方类型（如是ageng，client，gameserver）
-    EPACKET_TYPE_LOGIC_REGISTER = 26  //注册logic 能处理的method分组
+    EPACKET_TYPE_UDP_SERVER = 22 | 1
+    EPACKET_TYPE_HELLO = 24 | 1 //guin，data里面为发送方类型（如是ageng，client，gameserver）
+    EPACKET_TYPE_LOGIC_REGISTER = 26 | 1  //注册logic 能处理的method分组
 
 )
+
+
+type ConnectionBuffer struct {
+    Stream *gts.RWStream
+    Guin int
+    DPSize  int
+    RouteType byte
+}
 
 
 type WriteFunc func (data []byte) (int,error)
@@ -65,7 +73,8 @@ type IRoutePack interface {
     GetEndianer() gts.IEndianer
     SetEndianer(endianer gts.IEndianer)
 
-    Fetch(conn IConnection) (n int, dps []*RoutePacket)
+    //Fetch(conn IConnection) (n int, dps []*RoutePacket)
+    Fetch(buffer *ConnectionBuffer) (n int, dps []*RoutePacket)
     Pack(dp *RoutePacket) []byte
 
     PackWrite(write WriteFunc,dp *RoutePacket)
@@ -97,6 +106,7 @@ type IStream interface {
     Read(count int) ([]byte, int)
     SetPos(int)
     Reset()
+    Bytes() []byte
 }
 
 
@@ -112,7 +122,9 @@ type IConnection interface {
     //SetId(int connectId)
     GetId() int
 
-    GetStream() IStream
+    //GetStream() IStream
+
+    GetBuffer() *ConnectionBuffer
 
     GetType() EConnType
     SetType(t EConnType)
@@ -198,6 +210,7 @@ type IWormhole interface {
     //SetReceivePacketCallback(receive ReceivePacketFunc)
 
     Init()
+
     ProcessPackets(packets []*RoutePacket)
 
     Close()

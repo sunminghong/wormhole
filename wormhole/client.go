@@ -19,12 +19,6 @@
 package wormhole
 
 import (
-    //"reflect"
-    //"strconv"
-    //"net"
-    //"time"
-    //"math/rand"
-
     gts "github.com/sunminghong/gotools"
 )
 
@@ -62,6 +56,7 @@ func NewClient(
         tcpAddr : tcpAddr,
         udpAddr : udpAddr,
         routepack: routepack,
+        makeWormhole: makeWormhole,
         wormholes: wm,
         stop: false,
         exitChan: make(chan bool),
@@ -81,7 +76,6 @@ func (c *Client) Connect() {
     if c.tcpConn.Connect(c.tcpAddr) {
         //连接上服务器
         gts.Info("连接上tcpserver：%s", c.tcpAddr)
-
         gts.Trace("client send tcp hello:%s, wormtype:%d", c.tcpAddr, c.wormType)
         //hello to tcp server
         packet := &RoutePacket {
@@ -100,13 +94,17 @@ func (c *Client) GetWormhole() IWormhole {
 
 
 func (c *Client) Close() {
-    c.udpConn.Close()
-    c.tcpConn.Close()
+    if c.udpConn != nil {
+        c.udpConn.Close()
+    }
+    if c.tcpConn != nil {
+        c.tcpConn.Close()
+    }
 }
 
 
 func (c *Client) receiveTcpBytes(conn IConnection) {
-    n, dps := c.routepack.Fetch(conn)
+    n, dps := c.routepack.Fetch(conn.GetBuffer())
     if n > 0 {
         c.receiveTcpPackets(conn, dps)
     }
@@ -128,8 +126,7 @@ func (c *Client) receiveTcpPackets(conn IConnection, dps []*RoutePacket) {
             c.udpConn = NewUdpConnection(1, nil, c.routepack.GetEndianer(), nil)
 
             if c.udpConn.Connect(c.udpAddr) {
-                gts.Info("dial to udp server success:%s", c.udpAddr)
-                gts.Trace("client send udp hello:%s, wormtype:%d", c.udpAddr, c.wormType)
+                gts.Trace("client send udp hello:(%s), wormtype:(%d).", c.udpAddr, c.wormType)
 
                 //hello to tcp server
                 packet := &RoutePacket {

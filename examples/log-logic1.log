@@ -1,0 +1,511 @@
+#FL0000001# 15/08/22 10:52:01.977045 [T] connect to tcpserver::13001
+#FL0000002# 15/08/22 10:52:01.977133 [T] connect to tcpserver[info]::13001
+#FL0000001# 15/08/22 10:52:14.835051 [T] connect to tcpserver::13001
+#FL0000002# 15/08/22 10:52:14.835135 [T] connect to tcpserver[info]::13001
+#FL0000001# 15/08/22 11:03:19.085527 [T] connect to tcpserver::13001
+#FL0000002# 15/08/22 11:03:19.085606 [T] connect to tcpserver[info]::13001
+#FL0000001# 15/08/22 11:07:01.151858 [T] connect to tcpserver::13001
+#FL0000002# 15/08/22 11:07:01.151937 [T] connect to tcpserver[info]::13001
+#FL0000003# 15/08/22 11:07:01.152155 [I] pool dial to :13001 is ok. 
+#FL0000004# 15/08/22 11:07:01.152165 [I] 连接上tcpserver：:13001
+#FL0000005# 15/08/22 11:07:01.152170 [T] client send tcp hello::13001, wormtype:1
+#FL0000001# 15/08/22 11:08:54.462667 [T] connect to tcpserver::13001
+#FL0000002# 15/08/22 11:08:54.462745 [T] connect to tcpserver[info]::13001
+#FL0000001# 15/08/22 11:11:20.092366 [T] connect to tcpserver::13001
+#FL0000002# 15/08/22 11:11:20.092449 [T] connect to tcpserver[info]::13001
+#FL0000003# 15/08/22 11:11:20.092683 [I] pool dial to :13001 is ok. 
+#FL0000004# 15/08/22 11:11:20.092692 [I] 连接上tcpserver：:13001
+#FL0000005# 15/08/22 11:11:20.092697 [T] client send tcp hello::13001, wormtype:1
+#FL0000006# 15/08/22 11:11:20.092751 [T] read_buffer_size:1024
+#FL0000001# 15/08/22 11:11:59.658547 [T] connect to tcpserver::13001
+#FL0000002# 15/08/22 11:11:59.658626 [T] connect to tcpserver[info]::13001
+#FL0000003# 15/08/22 11:11:59.658924 [I] pool dial to :13001 is ok. 
+#FL0000001# 15/08/22 11:14:08.332665 [T] connect to tcpserver::13001
+#FL0000002# 15/08/22 11:14:08.332743 [T] connect to tcpserver[info]::13001
+#FL0000001# 15/08/22 11:14:35.063004 [T] connect to tcpserver::13001
+#FL0000002# 15/08/22 11:14:35.063095 [T] connect to tcpserver[info]::13001
+#FL0000001# 15/08/22 11:33:40.310955 [T] connect to tcpserver[info]::13001
+#FL0000001# 15/08/22 11:43:11.720892 [T] connect to tcpserver[info]::13001
+#FL0000001# 15/08/22 11:44:03.540422 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 11:44:03.540737 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 11:44:03.540747 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 11:44:03.540753 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 11:44:03.540788 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 11:44:03.540864 [E] option 'tcpaddr' not found in section 'agent2'
+    [wormhole/server.(*Logic).ConnectFromIni()] logic.go:176
+    [main.main()] logicserver.go:96
+    [runtime.main()] proc.go:63
+
+#FL0000007# 15/08/22 11:44:03.541203 [I] ----------------logic server is running!-----------------1
+#FL0000008# 15/08/22 11:44:03.541292 [T] ConnReader read to buff:21
+#FL0000009# 15/08/22 11:44:03.541376 [T] client receive tcp hello:&{'\x18' '\x00' "\x02"}
+#FL0000001# 15/08/22 11:46:31.082482 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 11:46:31.082809 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 11:46:31.082821 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 11:46:31.082828 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 11:46:31.082852 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 11:46:31.082920 [E] option 'tcpaddr' not found in section 'agent2'
+    [wormhole/server.(*Logic).ConnectFromIni()] logic.go:176
+    [main.main()] logicserver.go:94
+    [runtime.main()] proc.go:63
+
+#FL0000007# 15/08/22 11:46:31.083231 [I] ----------------logic server is running!-----------------1
+#FL0000008# 15/08/22 11:46:31.083255 [T] ConnReader read to buff:21
+#FL0000009# 15/08/22 11:46:31.083364 [T] client receive tcp hello:&{'\x18' '\x00' "\x02"}
+#FL0000001# 15/08/22 11:48:22.265935 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 11:48:22.266264 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 11:48:22.266276 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 11:48:22.266281 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 11:48:22.266290 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 11:48:22.266408 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 11:48:22.266603 [T] ConnReader read to buff:21
+#FL0000008# 15/08/22 11:48:22.266757 [T] client receive tcp hello:&{'\x18' '\x00' "\x02"}
+#FL0000001# 15/08/22 11:50:20.101666 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 11:50:20.102004 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 11:50:20.102020 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 11:50:20.102029 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 11:50:20.102055 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 11:50:20.102408 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 11:50:20.102604 [T] ConnReader read to buff:21
+#FL0000001# 15/08/22 11:59:09.172932 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 11:59:09.173247 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 11:59:09.173258 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 11:59:09.173264 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 11:59:09.173273 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 11:59:09.173564 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 11:59:09.173886 [T] ConnReader read to buff:21
+#FL0000008# 15/08/22 11:59:09.174025 [T] client receive tcp hello:&{'\x18' '\x00' "\x02"}
+#FL0000001# 15/08/22 11:59:53.473185 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 11:59:53.473526 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 11:59:53.473541 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 11:59:53.473548 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 11:59:53.473559 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 11:59:53.473780 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 11:59:53.474076 [T] ConnReader read to buff:21
+#FL0000008# 15/08/22 11:59:53.474166 [T] client receive tcp hello:&{'\x18' '\x00' "\x02"}
+#FL0000001# 15/08/22 12:02:41.334983 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 12:02:41.335306 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 12:02:41.335324 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 12:02:41.335332 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 12:02:41.335389 [I] ----------------logic server is running!-----------------1
+#FL0000006# 15/08/22 12:02:41.335638 [T] read_buffer_size:1024
+#FL0000007# 15/08/22 12:08:03.442625 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 12:08:08.512019 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 12:08:08.512339 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 12:08:08.512349 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 12:08:08.512354 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 12:08:08.512363 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 12:08:08.512464 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 12:08:24.171009 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 12:08:29.036252 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 12:08:29.036565 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 12:08:29.036576 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 12:08:29.036582 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 12:08:29.036592 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 12:08:29.036710 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 12:11:01.665203 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 12:11:44.902081 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 12:11:44.902394 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 12:11:44.902406 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 12:11:44.902411 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 12:11:44.902422 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 12:11:44.902522 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 12:13:32.392374 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 12:13:37.612365 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 12:13:37.612667 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 12:13:37.612681 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 12:13:37.612688 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 12:13:37.612704 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 12:13:37.612826 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 14:29:39.742198 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 14:29:49.392005 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 14:29:49.392411 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 14:29:49.392423 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 14:29:49.392430 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 14:29:49.392440 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 14:29:49.392592 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 14:29:49.398225 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 14:44:32.940266 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 14:44:32.940659 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 14:44:32.940671 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 14:44:32.940677 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 14:44:32.940689 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 14:44:32.940782 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 14:44:32.941157 [T] ConnReader read to buff:29, 25 20 19 21 00 08 81 01 00 00 00 02
+#FL0000008# 15/08/22 14:44:32.941495 [T] client receive tcp hello:&{'\x19' '\x00' "\x02"}
+#FL0000001# 15/08/22 15:21:14.211632 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 15:21:14.211951 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 15:21:14.211960 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 15:21:14.211967 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 15:21:14.212027 [I] ----------------logic server is running!-----------------1
+#FL0000006# 15/08/22 15:21:14.212303 [T] read_buffer_size:1024
+#FL0000007# 15/08/22 15:21:14.212352 [T] ConnReader read to buff:29, 25 20 19 C1 00 A0 BB 01 00 00 00 02
+#FL0000008# 15/08/22 15:21:14.212438 [T] client receive tcp hello:&{'\x19' %!q(int=3147825345) "\x02"}
+#FL0000009# 15/08/22 15:21:14.212461 [D] has clients:1
+#FL0000010# 15/08/22 15:21:14.212471 [T] logic register to agent:group(10,11,30)
+#FL0000011# 15/08/22 15:21:14.212479 [T] logicToAgent Init
+#FL0000012# 15/08/22 15:21:14.212489 [I] connect to grid::13001
+#FL0000013# 15/08/22 15:21:14.212555 [I] pool dial to :13001 is ok. 
+#FL0000014# 15/08/22 15:21:14.212562 [I] dial to udp server success::13001
+#FL0000015# 15/08/22 15:21:14.212567 [T] client send udp hello::13001, wormtype:1
+#FL0000016# 15/08/22 15:21:14.212624 [I] be connected to grid :13001
+#FL0000017# 15/08/22 15:21:14.212659 [D] has clients:1
+#FL0000018# 15/08/22 15:21:14.219510 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:115
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 15:21:50.604422 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 15:21:50.604729 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 15:21:50.604745 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 15:21:50.604755 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 15:21:50.604808 [I] ----------------logic server is running!-----------------1
+#FL0000006# 15/08/22 15:21:50.604953 [T] read_buffer_size:1024
+#FL0000007# 15/08/22 15:21:50.605324 [T] ConnReader read to buff:12, 25 20 19 21 00 28 55 01 00 00 00 02
+#FL0000008# 15/08/22 15:21:50.605491 [T] client receive tcp hello:&{'\x19' %!q(int=1428684833) "\x02"}
+#FL0000009# 15/08/22 15:21:50.605753 [D] has clients:1
+#FL0000010# 15/08/22 15:21:50.605772 [T] logic register to agent:group(10,11,30)
+#FL0000011# 15/08/22 15:21:50.605785 [T] logicToAgent Init
+#FL0000001# 15/08/22 15:34:48.671703 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 15:34:48.672296 [I] pool dial to :13001 is ok. 
+#FL0000003# 15/08/22 15:34:48.672323 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 15:34:48.672339 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 15:34:48.672459 [I] ----------------logic server is running!-----------------1
+#FL0000006# 15/08/22 15:34:48.672526 [T] read_buffer_size:1024
+#FL0000007# 15/08/22 15:34:48.673150 [T] ConnReader read to buff:29, 25 20 19 21 00 B0 6F 01 00 00 00 02
+#FL0000008# 15/08/22 15:34:48.673330 [T] client receive tcp hello:&{'\x19' %!q(int=1873805345) "\x02"}
+#FL0000009# 15/08/22 15:34:48.673378 [D] has clients:1
+#FL0000010# 15/08/22 15:34:48.673388 [T] logicToAgent Init
+#FL0000011# 15/08/22 15:34:48.673401 [T] logic register to agent:group(10,11,30)
+#FL0000012# 15/08/22 15:34:48.673457 [I] connect to grid::13001
+#FL0000013# 15/08/22 15:34:48.673595 [I] pool dial to :13001 is ok. 
+#FL0000014# 15/08/22 15:34:48.673647 [I] dial to udp server success::13001
+#FL0000015# 15/08/22 15:34:48.673655 [T] client send udp hello::13001, wormtype:1
+#FL0000016# 15/08/22 15:34:48.673863 [I] be connected to grid :13001
+#FL0000017# 15/08/22 15:34:48.674198 [D] has clients:1
+#FL0000018# 15/08/22 15:34:48.680430 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:115
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 15:42:10.617452 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 15:42:10.617827 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 15:42:10.617842 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 15:42:10.617850 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 15:42:10.617887 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 15:42:10.617900 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 15:42:10.618448 [T] ConnReader read to buff:12, 25 20 19 21 00 E8 31 01 00 00 00 02
+#FL0000008# 15/08/22 15:42:10.618559 [T] client receive tcp hello:&{'\x19' %!q(int=837287969) "\x02"}
+#FL0000009# 15/08/22 15:42:10.618586 [D] has clients:1
+#FL0000010# 15/08/22 15:42:10.618593 [T] logicToAgent Init
+#FL0000011# 15/08/22 15:42:10.618601 [T] logic register to agent:group(10,11,30)
+#FL0000012# 15/08/22 15:42:10.618616 [T] ConnReader read to buff:17, 25 20 17 21 00 E8 31 06 00 00 00 3A
+#FL0000013# 15/08/22 15:42:10.618644 [T] logicToAgent processpackets receive 1 route packets
+#FL0000014# 15/08/22 15:42:10.618659 [T] ProcessPackets:::sldhrq8903246dsfq238946204
+[%!q(*wormhole.RoutePacket=&{23 837287969 [58 49 51 48 48 49]})]
+#FL0000015# 15/08/22 15:50:43.101105 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 15:50:50.124065 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 15:50:50.124427 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 15:50:50.124440 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 15:50:50.124448 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 15:50:50.124460 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 15:50:50.124550 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 15:50:50.124939 [T] ConnReader read to buff:12, 25 20 19 21 00 A8 E9 01 00 00 00 02
+#FL0000008# 15/08/22 15:50:50.125084 [T] client receive tcp hello:&{'\x19' %!q(int=3920101409) "\x02"}
+#FL0000009# 15/08/22 15:50:50.125127 [D] has clients:1
+#FL0000010# 15/08/22 15:50:50.125136 [T] logicToAgent Init
+#FL0000011# 15/08/22 15:50:50.125145 [T] logic register to agent:group(10,11,30)
+#FL0000012# 15/08/22 15:50:50.125161 [T] ConnReader read to buff:17, 25 20 17 21 00 A8 E9 06 00 00 00 3A
+#FL0000013# 15/08/22 15:50:50.125204 [T] logicToAgent processpackets receive 1 route packets
+#FL0000001# 15/08/22 15:59:06.203285 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 15:59:06.203627 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 15:59:06.203642 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 15:59:06.203650 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 15:59:06.203665 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 15:59:06.203762 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 15:59:06.203983 [T] ConnReader read to buff:12, 25 20 19 41 00 40 2D 01 00 00 00 02
+#FL0000008# 15/08/22 15:59:06.204341 [T] client receive tcp hello:&{'\x19' %!q(int=759169089) "\x02"}
+#FL0000009# 15/08/22 15:59:06.204373 [D] has clients:1
+#FL0000010# 15/08/22 15:59:06.204379 [T] logicToAgent Init
+#FL0000011# 15/08/22 15:59:06.204382 [T] logicToAgentwormhole is init()
+#FL0000012# 15/08/22 15:59:06.204386 [T] logic register to agent:group(10,11,30)
+#FL0000013# 15/08/22 15:59:06.204398 [T] &{'\x1b' '\x00' "10,11,30"}
+#FL0000014# 15/08/22 15:59:06.204419 [T] ConnReader read to buff:17, 25 20 17 41 00 40 2D 06 00 00 00 3A
+#FL0000015# 15/08/22 15:59:06.204458 [T] logicToAgent processpackets receive 1 route packets
+#FL0000001# 15/08/22 16:01:00.770401 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 16:01:00.770684 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 16:01:00.770695 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 16:01:00.770700 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 16:01:00.770756 [I] ----------------logic server is running!-----------------1
+#FL0000006# 15/08/22 16:01:00.770789 [T] read_buffer_size:1024
+#FL0000007# 15/08/22 16:01:00.771081 [T] ConnReader read to buff:12, 25 20 19 61 00 78 92 01 00 00 00 02
+#FL0000008# 15/08/22 16:01:00.771195 [T] client receive tcp hello:&{'\x19' %!q(int=2457337953) "\x02"}
+#FL0000009# 15/08/22 16:01:00.771224 [D] has clients:1
+#FL0000010# 15/08/22 16:01:00.771230 [T] logicToAgent Init
+#FL0000011# 15/08/22 16:01:00.771233 [T] logicToAgentwormhole is init()
+#FL0000012# 15/08/22 16:01:00.771240 [T] logic register to agent:group(10,11,30)
+#FL0000013# 15/08/22 16:01:00.771251 [T] &{'\x1b' '\x00' "10,11,30"}
+#FL0000014# 15/08/22 16:01:00.771272 [T] ConnReader read to buff:17, 25 20 17 61 00 78 92 06 00 00 00 3A
+#FL0000015# 15/08/22 16:01:00.771307 [T] logicToAgent processpackets receive 1 route packets
+#FL0000001# 15/08/22 16:02:05.933095 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 16:02:05.933404 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 16:02:05.933413 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 16:02:05.933418 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 16:02:05.933717 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 16:02:05.933768 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 16:02:05.934008 [T] ConnReader read to buff:29, 25 20 19 81 00 40 AB 01 00 00 00 02
+#FL0000008# 15/08/22 16:02:05.934124 [T] client receive tcp hello:&{'\x19' %!q(int=2873098369) "\x02"}
+#FL0000009# 15/08/22 16:02:05.934153 [D] has clients:1
+#FL0000010# 15/08/22 16:02:05.934157 [T] logicToAgent Init
+#FL0000011# 15/08/22 16:02:05.934160 [T] logicToAgentwormhole is init()
+#FL0000012# 15/08/22 16:02:05.934164 [T] logic register to agent:group(10,11,30)
+#FL0000013# 15/08/22 16:02:05.934171 [T] &{'\x1b' '\x00' "10,11,30"}
+#FL0000014# 15/08/22 16:02:05.934233 [I] connect to grid::13001
+#FL0000015# 15/08/22 16:02:05.934317 [I] pool dial to :13001 is ok. 
+#FL0000016# 15/08/22 16:02:05.934365 [I] dial to udp server success::13001
+#FL0000017# 15/08/22 16:02:05.934373 [T] client send udp hello::13001, wormtype:1
+#FL0000018# 15/08/22 16:02:05.934413 [I] be connected to grid :13001
+#FL0000019# 15/08/22 16:02:05.934435 [D] has clients:1
+#FL0000020# 15/08/22 16:02:05.940306 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 16:03:44.244540 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 16:03:44.245086 [W] net.Dial to :13001:"dial tcp :13001: connection refused"
+#FL0000003# 15/08/22 16:03:44.245177 [I] ----------------logic server is running!-----------------1
+#FL0000001# 15/08/22 16:03:58.709042 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 16:03:58.709368 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 16:03:58.709378 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 16:03:58.709384 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 16:03:58.709420 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 16:03:58.709444 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 16:03:58.709943 [T] ConnReader read to buff:12, 25 20 19 21 00 60 E3 01 00 00 00 02
+#FL0000008# 15/08/22 16:03:58.710061 [T] client receive tcp hello:&{'\x19' %!q(int=3814719521) "\x02"}
+#FL0000009# 15/08/22 16:03:58.710091 [D] has clients:1
+#FL0000010# 15/08/22 16:03:58.710096 [T] logicToAgent Init
+#FL0000011# 15/08/22 16:03:58.710099 [T] logicToAgentwormhole is init()
+#FL0000012# 15/08/22 16:03:58.710104 [T] logic register to agent:group(10,11,30)
+#FL0000013# 15/08/22 16:03:58.710114 [T] &{'\x1b' '\x00' "10,11,30"}
+#FL0000014# 15/08/22 16:03:58.710139 [T] ConnReader read to buff:17, 25 20 17 21 00 60 E3 06 00 00 00 3A
+#FL0000015# 15/08/22 16:03:58.710210 [T] logicToAgent processpackets receive 1 route packets
+#FL0000001# 15/08/22 16:04:39.062977 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 16:04:39.063265 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 16:04:39.063276 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 16:04:39.063281 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 16:04:39.063298 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 16:04:39.063639 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 16:04:39.063693 [T] ConnReader read to buff:12, 25 20 19 41 00 90 A0 01 00 00 00 02
+#FL0000008# 15/08/22 16:04:39.063806 [T] client receive tcp hello:&{'\x19' %!q(int=2693791809) "\x02"}
+#FL0000009# 15/08/22 16:04:39.063840 [D] has clients:1
+#FL0000010# 15/08/22 16:04:39.063844 [T] logicToAgent Init
+#FL0000011# 15/08/22 16:04:39.063848 [T] logicToAgentwormhole is init()
+#FL0000012# 15/08/22 16:04:39.063851 [T] logic register to agent:group(10,11,30)
+#FL0000013# 15/08/22 16:04:39.063876 [T] &{'\x1b' '\x00' "10,11,30"}
+#FL0000014# 15/08/22 16:04:39.063895 [T] ConnReader read to buff:17, 25 20 17 41 00 90 A0 06 00 00 00 3A
+#FL0000015# 15/08/22 16:04:39.063923 [T] logicToAgent processpackets receive 1 route packets
+#FL0000001# 15/08/22 16:06:21.050507 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 16:06:21.050803 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 16:06:21.050818 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 16:06:21.050826 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 16:06:21.050849 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 16:06:21.051301 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 16:06:21.051369 [T] ConnReader read to buff:29, 25 20 19 61 00 78 DB 01 00 00 00 02
+#FL0000008# 15/08/22 16:06:21.051469 [T] client receive tcp hello:&{'\x19' %!q(int=3682074721) "\x02"}
+#FL0000009# 15/08/22 16:06:21.051507 [D] has clients:1
+#FL0000010# 15/08/22 16:06:21.051513 [T] logicToAgent Init
+#FL0000011# 15/08/22 16:06:21.051532 [I] connect to grid::13001
+#FL0000012# 15/08/22 16:06:21.051604 [I] pool dial to :13001 is ok. 
+#FL0000013# 15/08/22 16:06:21.051644 [I] dial to udp server success::13001
+#FL0000014# 15/08/22 16:06:21.051651 [T] client send udp hello::13001, wormtype:1
+#FL0000015# 15/08/22 16:06:21.051709 [I] be connected to grid :13001
+#FL0000016# 15/08/22 16:06:21.051803 [D] has clients:1
+#FL0000017# 15/08/22 16:06:21.057112 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 16:06:33.467963 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 16:06:33.468287 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 16:06:33.468298 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 16:06:33.468304 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 16:06:33.468364 [I] ----------------logic server is running!-----------------1
+#FL0000006# 15/08/22 16:06:33.468648 [T] read_buffer_size:1024
+#FL0000007# 15/08/22 16:06:33.468912 [T] ConnReader read to buff:29, 25 20 19 21 00 B0 75 01 00 00 00 02
+#FL0000008# 15/08/22 16:06:33.469018 [T] client receive tcp hello:&{'\x19' %!q(int=1974468641) "\x02"}
+#FL0000009# 15/08/22 16:06:33.469045 [D] has clients:1
+#FL0000010# 15/08/22 16:06:33.469048 [T] logicToAgent Init
+#FL0000011# 15/08/22 16:06:33.469061 [I] connect to grid::13001
+#FL0000012# 15/08/22 16:06:33.469122 [I] pool dial to :13001 is ok. 
+#FL0000013# 15/08/22 16:06:33.469130 [I] dial to udp server success::13001
+#FL0000014# 15/08/22 16:06:33.469134 [T] client send udp hello::13001, wormtype:1
+#FL0000015# 15/08/22 16:06:33.469188 [I] be connected to grid :13001
+#FL0000016# 15/08/22 16:06:33.469216 [D] has clients:1
+#FL0000017# 15/08/22 16:06:33.475092 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 16:07:00.188643 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 16:07:00.188936 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 16:07:00.188947 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 16:07:00.188953 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 16:07:00.188962 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 16:07:00.189071 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 16:07:00.189419 [T] ConnReader read to buff:29, 25 20 19 21 00 58 E8 01 00 00 00 02
+#FL0000008# 15/08/22 16:07:00.189544 [T] client receive tcp hello:&{'\x19' %!q(int=3898081313) "\x02"}
+#FL0000009# 15/08/22 16:07:00.189774 [D] has clients:1
+#FL0000010# 15/08/22 16:07:00.189779 [T] logicToAgent Init
+#FL0000011# 15/08/22 16:07:00.189791 [I] connect to grid::13001
+#FL0000012# 15/08/22 16:07:00.189856 [I] pool dial to :13001 is ok. 
+#FL0000013# 15/08/22 16:07:00.189867 [I] dial to udp server success::13001
+#FL0000014# 15/08/22 16:07:00.189871 [T] client send udp hello::13001, wormtype:1
+#FL0000015# 15/08/22 16:07:00.189881 [I] be connected to grid :13001
+#FL0000016# 15/08/22 16:07:00.189908 [D] has clients:1
+#FL0000017# 15/08/22 16:07:00.195750 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 16:09:54.443115 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 16:09:54.443450 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 16:09:54.443461 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 16:09:54.443467 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 16:09:54.443517 [I] ----------------logic server is running!-----------------1
+#FL0000006# 15/08/22 16:09:54.443585 [T] read_buffer_size:1024
+#FL0000007# 15/08/22 16:09:54.443949 [T] ConnReader read to buff:29, 25 20 19 21 00 C8 C8 01 00 00 00 02
+#FL0000008# 15/08/22 16:09:54.444068 [T] client receive tcp hello:&{'\x19' %!q(int=3368550433) "\x02"}
+#FL0000009# 15/08/22 16:09:54.444101 [D] has clients:1
+#FL0000010# 15/08/22 16:09:54.444106 [T] logicToAgent Init
+#FL0000011# 15/08/22 16:09:54.444201 [T] dial to udp( :13001 is) ok. 
+#FL0000012# 15/08/22 16:09:54.444221 [I] dial to udp server success::13001
+#FL0000013# 15/08/22 16:09:54.444225 [T] client send udp hello::13001, wormtype:1
+#FL0000014# 15/08/22 16:09:54.444253 [D] has clients:1
+#FL0000015# 15/08/22 16:09:54.449322 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 16:22:07.693276 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 16:22:07.693667 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 16:22:07.693681 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 16:22:07.693689 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 16:22:07.693739 [I] ----------------logic server is running!-----------------1
+#FL0000006# 15/08/22 16:22:07.694071 [T] read_buffer_size:1024
+#FL0000007# 15/08/22 16:22:07.694244 [T] ConnReader read to buff:29, 25 20 19 21 00 C8 0B 01 00 00 00 02
+#FL0000008# 15/08/22 16:22:07.694360 [T] client receive tcp hello:&{'\x19' %!q(int=197656609) "\x02"}
+#FL0000009# 15/08/22 16:22:07.694390 [D] has clients:1
+#FL0000010# 15/08/22 16:22:07.694396 [T] logicToAgent Init
+#FL0000011# 15/08/22 16:22:07.694502 [T] dial to udp(:13001) is ok.
+#FL0000012# 15/08/22 16:22:07.694516 [T] client send udp hello:(:13001), wormtype:(1).
+#FL0000013# 15/08/22 16:22:07.694561 [D] has clients:1
+#FL0000014# 15/08/22 16:22:07.700499 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:114
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 17:03:41.363659 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 17:03:41.364027 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 17:03:41.364043 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 17:03:41.364053 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 17:03:41.364062 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 17:03:41.364163 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 17:03:41.364501 [T] ConnReader read to buff:29, 25 20 19 21 00 20 76 01 00 00 00 02
+#FL0000008# 15/08/22 17:03:41.364777 [T] client receive tcp hello:&{'\x19' %!q(int=1981808673) "\x02"}
+#FL0000009# 15/08/22 17:03:41.364810 [D] has clients:1
+#FL0000010# 15/08/22 17:03:41.364814 [T] logicToAgent Init
+#FL0000011# 15/08/22 17:03:41.364897 [T] dial to udp(:13001) is ok.
+#FL0000012# 15/08/22 17:03:41.364916 [T] client send udp hello:(:13001), wormtype:(1).
+#FL0000013# 15/08/22 17:03:41.364957 [D] has clients:1
+#FL0000001# 15/08/22 17:05:41.012879 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 17:05:41.013169 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 17:05:41.013181 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 17:05:41.013187 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 17:05:41.013198 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 17:05:41.013466 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 17:05:41.013560 [T] ConnReader read to buff:29, 25 20 19 41 00 10 1D 01 00 00 00 02
+#FL0000008# 15/08/22 17:05:41.013658 [T] client receive tcp hello:&{'\x19' %!q(int=487587905) "\x02"}
+#FL0000009# 15/08/22 17:05:41.013687 [D] has clients:1
+#FL0000010# 15/08/22 17:05:41.013690 [T] logicToAgent Init
+#FL0000011# 15/08/22 17:05:41.013693 [T] logicToAgentwormhole is init()
+#FL0000012# 15/08/22 17:05:41.013696 [T] logic register to agent:group(10,11,30)
+#FL0000013# 15/08/22 17:05:41.013704 [T] &{'\x1b' '\x00' "10,11,30"}
+#FL0000014# 15/08/22 17:05:41.013789 [T] dial to udp(:13001) is ok.
+#FL0000015# 15/08/22 17:05:41.013804 [T] client send udp hello:(:13001), wormtype:(1).
+#FL0000016# 15/08/22 17:05:41.013878 [D] has clients:1
+#FL0000017# 15/08/22 17:17:22.679153 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:122
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 17:17:42.516822 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 17:17:42.517116 [W] net.Dial to :13001:"dial tcp :13001: connection refused"
+#FL0000003# 15/08/22 17:17:42.517149 [I] ----------------logic server is running!-----------------1
+#FL0000001# 15/08/22 17:18:11.256541 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 17:18:11.257198 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 17:18:11.257227 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 17:18:11.257243 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 17:18:11.257272 [T] read_buffer_size:1024
+#FL0000006# 15/08/22 17:18:11.257440 [I] ----------------logic server is running!-----------------1
+#FL0000007# 15/08/22 17:18:11.258073 [T] ConnReader read to buff:29, 25 20 19 21 00 38 55 01 00 00 00 02
+#FL0000008# 15/08/22 17:18:11.258700 [T] client receive tcp hello:&{'\x19' %!q(int=1429733409) "\x02"}
+#FL0000009# 15/08/22 17:18:11.258758 [D] has clients:1
+#FL0000010# 15/08/22 17:18:11.258765 [T] logicToAgent Init
+#FL0000011# 15/08/22 17:18:11.258770 [T] logicToAgentwormhole is init()
+#FL0000012# 15/08/22 17:18:11.258776 [T] logic register to agent:group(10,11,30)
+#FL0000013# 15/08/22 17:18:11.258791 [T] &{'\x1b' '\x00' "10,11,30"}
+#FL0000014# 15/08/22 17:18:11.258940 [T] dial to udp(:13001) is ok.
+#FL0000015# 15/08/22 17:18:11.258966 [T] client send udp hello:(:13001), wormtype:(1).
+#FL0000016# 15/08/22 17:18:11.259052 [D] has clients:1
+#FL0000017# 15/08/22 17:18:11.267067 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:122
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 17:24:05.191452 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 17:24:05.191809 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 17:24:05.191835 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 17:24:05.191842 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 17:24:05.192148 [I] ----------------logic server is running!-----------------1
+#FL0000006# 15/08/22 17:24:05.192164 [T] read_buffer_size:1024
+#FL0000007# 15/08/22 17:24:05.192468 [T] ConnReader read to buff:12, 25 20 19 21 00 20 35 01 00 00 00 02
+#FL0000008# 15/08/22 17:24:05.192603 [T] client receive tcp hello:&{'\x19' %!q(int=891289633) "\x02"}
+#FL0000009# 15/08/22 17:24:05.192654 [D] has clients:1
+#FL0000010# 15/08/22 17:24:05.192663 [T] logicToAgent Init
+#FL0000011# 15/08/22 17:24:05.192683 [T] logicToAgentwormhole is init()
+#FL0000012# 15/08/22 17:24:05.192690 [T] logic register to agent:group(10,11,30)
+#FL0000013# 15/08/22 17:24:05.192704 [T] &{'\x1b' '\x00' "10,11,30"}
+#FL0000014# 15/08/22 17:24:05.192724 [T] ConnReader read to buff:17, 25 20 17 21 00 20 35 06 00 00 00 3A
+#FL0000015# 15/08/22 17:24:05.192731 [T] wormhole receiveBytes:25 20 17 21 00 20 35 06 00 00 00 3A 31 33 30 30 31
+#FL0000016# 15/08/22 17:24:05.192809 [T] logicToAgent processpackets receive 1 route packets
+#FL0000017# 15/08/22 17:29:15.437552 [E] tcpconnection connreader error: EOF 0
+    [wormhole/wormhole.(*TcpConnection).ConnReader()] tcpconnection.go:122
+    [runtime.goexit()] asm_amd64.s:2232
+
+#FL0000001# 15/08/22 17:29:26.093470 [T] connect to tcpserver[info]::13001
+#FL0000002# 15/08/22 17:29:26.093848 [T] tcp dial to :13001 is ok. 
+#FL0000003# 15/08/22 17:29:26.093865 [I] 连接上tcpserver：:13001
+#FL0000004# 15/08/22 17:29:26.093874 [T] client send tcp hello::13001, wormtype:1
+#FL0000005# 15/08/22 17:29:26.094173 [I] ----------------logic server is running!-----------------1
+#FL0000006# 15/08/22 17:29:26.094238 [T] read_buffer_size:1024
+#FL0000007# 15/08/22 17:29:26.094499 [T] ConnReader read to buff:29, 25 20 19 21 00 A8 CB 01 00 00 00 02
+#FL0000008# 15/08/22 17:29:26.094599 [T] client receive tcp hello:&{'\x19' %!q(int=3416784929) "\x02"}
+#FL0000009# 15/08/22 17:29:26.094634 [D] has clients:1
+#FL0000010# 15/08/22 17:29:26.094640 [T] logicToAgent Init
+#FL0000011# 15/08/22 17:29:26.094643 [T] logicToAgentwormhole is init()
+#FL0000012# 15/08/22 17:29:26.094647 [T] logic register to agent:group(0,10,11,30)
+#FL0000013# 15/08/22 17:29:26.094655 [T] &{'\x1b' '\x00' "0,10,11,30"}
+#FL0000014# 15/08/22 17:29:26.094791 [T] dial to udp(:13001) is ok.
+#FL0000015# 15/08/22 17:29:26.094812 [T] client send udp hello:(:13001), wormtype:(1).
+#FL0000016# 15/08/22 17:29:26.094839 [D] has clients:1

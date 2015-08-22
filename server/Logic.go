@@ -52,9 +52,17 @@ func NewLogic(
         wormholes: wm,
         serverType: EWORMHOLE_TYPE_LOGIC,
         group : group,
+
+        logics: make(map[string]*Client),
     }
+    ls.wormholes.SetServer(ls)
 
     return ls
+}
+
+
+func (ls *Logic) GetServerId() int {
+    return ls.serverId
 }
 
 
@@ -62,8 +70,13 @@ func (ls *Logic) ConnectAgent(tcpAddr string, udpAddr string) {
     c := NewClient(tcpAddr, udpAddr, ls.routepack, ls.wormholes,
         ls.makeWormhole, ls.serverType)
 
-    c.GetWormhole().(*LogicToAgentWormhole).SetGroup(ls.group)
+    //c.GetWormhole().(*LogicToAgentWormhole).SetGroup(ls.group)
     ls.logics[tcpAddr] = c
+}
+
+
+func (ls *Logic) GetGroup() string {
+    return ls.group
 }
 
 
@@ -109,6 +122,7 @@ func NewLogicFromIni(
         group = "0"
     }
 
+    /*
     endian, err := c.GetInt(section, "endian")
     if err == nil {
         routepack.SetEndianer(gts.GetEndianer(endian))
@@ -116,7 +130,6 @@ func NewLogicFromIni(
         routepack.SetEndianer(gts.GetEndianer(gts.LittleEndian))
     }
 
-    /*
     autoDuration, err := c.GetInt(section, "autoReconnectDuration")
     if err != nil {
         autoDuration = 5
@@ -131,6 +144,7 @@ func NewLogicFromIni(
 
 
 func (ls *Logic) ConnectFromIni(c *iniconfig.ConfigFile) {
+    print("connect from ini:")
     //make some connection to game server
     for i := 1; i < 50; i++ {
         section := "Agent" + strconv.Itoa(i)

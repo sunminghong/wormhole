@@ -25,9 +25,10 @@ type LogicManager struct {
 }
 
 
-func NewLogicManager(routepack IRoutePack, fromType EWormholeType, dispatcher ILogicDispatcher) *LogicManager {
+func NewLogicManager(routepack IRoutePack, dispatcher ILogicDispatcher) *LogicManager {
     wm := &LogicManager {
-        WormholeManager: NewWormholeManager(routepack, 100, fromType),
+        WormholeManager: NewWormholeManager(routepack, 100, EWORMHOLE_TYPE_LOGIC),
+        wmlock:        new(sync.RWMutex),
         dispatcher : dispatcher,
     }
     return wm

@@ -16,15 +16,13 @@ import (
 
 // Connection  
 type UdpConnection struct {
+    *ConnectionBuffer
+
     read_buffer_size int
     connectionType EConnType
     id int
     conn *net.UDPConn
     userAddr *net.UDPAddr
-
-    stream *gts.RWStream
-    DPSize  int
-    RouteType byte
 
     receiveCallback ReceiveFunc
     closeCallback CommonCallbackFunc
@@ -45,6 +43,7 @@ type UdpConnection struct {
 // new Transport object
 func NewUdpConnection(newcid int, conn *net.UDPConn, endianer gts.IEndianer, userAddr *net.UDPAddr) *UdpConnection {
     c := &UdpConnection {
+        ConnectionBuffer: &ConnectionBuffer{Stream:   gts.NewRWStream(1024, endianer)},
         id:      newcid,
         conn:     conn,
         userAddr: userAddr,
@@ -54,11 +53,7 @@ func NewUdpConnection(newcid int, conn *net.UDPConn, endianer gts.IEndianer, use
         receiveChan: make(chan bool, 20),
         quit:     make(chan bool),
         Quit:     make(chan bool),
-
-        stream:   gts.NewRWStream(1024, endianer),
     }
-
-    c.stream.Reset()
 
     //创建go的线程 使用Goroutine
     go c.reader()
@@ -75,13 +70,17 @@ func (c *UdpConnection) GetId() int {
 }
 
 
-func (c *UdpConnection) GetStream() IStream {
-    return c.stream
+func (c *UdpConnection) GetBuffer() *ConnectionBuffer {
+    return c.ConnectionBuffer
 }
 
+/*
+func (c *UdpConnection) GetStream() IStream {
+    return c.Stream
+}
+*/
 
 func (c *UdpConnection) Connect(addr string) bool {
-    gts.Info("connect to grid:", addr)
 	udpAddr, err := net.ResolveUDPAddr("udp", addr)
 	if err != nil {
         gts.Error("dial udp server addr(%s) is error:%q", udpAddr, err)
@@ -94,7 +93,7 @@ func (c *UdpConnection) Connect(addr string) bool {
         return false
     }
 
-    gts.Info("pool dial to %s is ok. ", addr)
+    gts.Trace("dial to udp(%s) is ok.", addr)
 
     go func() {
         defer conn.Close()
@@ -120,8 +119,6 @@ func (c *UdpConnection) Connect(addr string) bool {
 
         go c.ConnSenderClient()
 
-        gts.Info("be connected to grid ", addr)
-
         <-c.Quit
     }()
     return true
@@ -129,7 +126,7 @@ func (c *UdpConnection) Connect(addr string) bool {
 
 
 func (c *UdpConnection) ConnReader(buffer []byte) {
-    c.stream.Write(buffer)
+    c.Stream.Write(buffer)
     c.receiveChan <- true
 }
 

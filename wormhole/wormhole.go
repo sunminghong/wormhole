@@ -9,10 +9,18 @@
 
 package wormhole
 
+
+
+import (
+    gts "github.com/sunminghong/gotools"
+)
+
+
 // Connection  
 type Wormhole struct {
-    ctrlConnection IConnection
+    *Inherit
 
+    ctrlConnection IConnection
     dataConnection IConnection
 
     guin int
@@ -32,6 +40,7 @@ type Wormhole struct {
 
 func NewWormhole(guin int, wormholes IWormholeManager, routepack IRoutePack) *Wormhole {
     wh := &Wormhole {
+        Inherit:        NewInherit("ProcessPackets"),
         guin:           guin,
         fromId:         0,
         fromType:       EWORMHOLE_TYPE_CLIENT,
@@ -49,14 +58,14 @@ func (wh *Wormhole) SetReceivePacketCallback(cf ReceivePacketFunc)  {
 }
 */
 
-//需要继承实现具体的处理逻辑
-func (c *Wormhole) Init() {
-    print("wormhole don't implent init()")
-}
-
 
 func (c *Wormhole) ProcessPackets(dps []*RoutePacket) {
-    print("wormhole don't implentpent processpackets()")
+    c.Inherit.CallSub("ProcessPackets", dps)
+}
+
+//需要继承实现具体的处理逻辑
+func (c *Wormhole) Init() {
+    c.Inherit.CallSub("Init")
 }
 
 
@@ -110,14 +119,13 @@ func (wh *Wormhole) AddConnection(conn IConnection, t EConnType) {
             //conn.SetCloseCallback(wh.dataClosed)
         //}
 
-        //if wh.dataConnection == nil {
-            //wh.dataConnection = conn
-            //conn.SetCloseCallback(wh.dataClosed)
-        //}
-
-        wh.dataConnection = wh.ctrlConnection
         wh.ctrlConnection = conn
         conn.SetCloseCallback(wh.ctrlClosed)
+
+        if wh.dataConnection == nil {
+            wh.dataConnection = conn
+            conn.SetCloseCallback(wh.dataClosed)
+        }
     } else {
         if wh.ctrlConnection == nil {
             wh.ctrlConnection = conn
@@ -131,7 +139,8 @@ func (wh *Wormhole) AddConnection(conn IConnection, t EConnType) {
 
 
 func (wh *Wormhole) receiveBytes(conn IConnection) {
-    n, dps := wh.routePack.Fetch(conn)
+    gts.Trace("wormhole receiveBytes:% X", conn.GetBuffer().Stream.Bytes())
+    n, dps := wh.routePack.Fetch(conn.GetBuffer())
     if n > 0 {
         //wh.receivePacketCallback(wh, dps)
         wh.ProcessPackets(dps)

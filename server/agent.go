@@ -80,13 +80,15 @@ func NewAgent(
     clientWormholes.SetServer(s)
     logicWormholes.SetServer(s)
 
+    gts.Trace("agent is new:")
+    gts.Trace(clientTcpAddr, clientUdpAddr, logicTcpAddr, logicUdpAddr)
     s.clientServer = NewServer(
-        name, serverId, EWORMHOLE_TYPE_AGENT,
+        "client-"+name, serverId, EWORMHOLE_TYPE_AGENT,
         clientTcpAddr, clientUdpAddr, maxConnections,
         routepack, clientWormholes, makeClientWormhole)
 
     s.logicServer = NewServer(
-        name, serverId, EWORMHOLE_TYPE_AGENT,
+        "logic-"+name, serverId, EWORMHOLE_TYPE_AGENT,
         logicTcpAddr, logicUdpAddr, 100,
         routepack, logicWormholes, makeLogicWormhole)
 
@@ -114,18 +116,12 @@ func (s *Agent) Stop() {
 
 
 func NewAgentFromIni(
-    configfile string,
+    c *iniconfig.ConfigFile,
     routepack IRoutePack,
     clientWormholes IWormholeManager,
     logicWormholes IWormholeManager,
     makeClientWormhole NewWormholeFunc,
     makeLogicWormhole NewWormholeFunc) *Agent {
-
-    c, err := iniconfig.ReadConfigFile(configfile)
-    if err != nil {
-        gts.Error(err.Error())
-        return nil
-    }
 
     section := "Default"
 
@@ -175,6 +171,7 @@ func NewAgentFromIni(
         maxConnections = 1000
     }
 
+    /*
     endian, err := c.GetInt(section, "endian")
     if err == nil {
         routepack.SetEndianer(gts.GetEndianer(endian))
@@ -182,7 +179,6 @@ func NewAgentFromIni(
         routepack.SetEndianer(gts.GetEndianer(gts.LittleEndian))
     }
 
-    /*
     autoDuration, err := c.GetInt(section, "autoReconnectDuration")
     if err != nil {
         autoDuration = 5
