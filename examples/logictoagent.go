@@ -38,7 +38,7 @@ func NewLogicToAgent(guin int, manager wormhole.IWormholeManager, routepack worm
 
 func (aw *LogicToAgent) ProcessPackets(dps []*wormhole.RoutePacket) {
     gts.Trace("agentwormhole processpackets receive %d route packets",len(dps))
-    gts.Trace("ProcessPackets:::sldhrq8903246dsfq238946204\n%q", dps)
+    gts.Trace("ProcessPackets:\n%q", dps)
 }
 
 

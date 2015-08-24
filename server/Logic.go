@@ -69,8 +69,8 @@ func (ls *Logic) GetServerId() int {
 func (ls *Logic) ConnectAgent(tcpAddr string, udpAddr string) {
     c := NewClient(tcpAddr, udpAddr, ls.routepack, ls.wormholes,
         ls.makeWormhole, ls.serverType)
+    c.Connect()
 
-    //c.GetWormhole().(*LogicToAgentWormhole).SetGroup(ls.group)
     ls.logics[tcpAddr] = c
 }
 
@@ -144,7 +144,7 @@ func NewLogicFromIni(
 
 
 func (ls *Logic) ConnectFromIni(c *iniconfig.ConfigFile) {
-    print("connect from ini:")
+    gts.Trace("connect from ini")
     //make some connection to game server
     for i := 1; i < 50; i++ {
         section := "Agent" + strconv.Itoa(i)

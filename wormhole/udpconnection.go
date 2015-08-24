@@ -19,6 +19,8 @@ type UdpConnection struct {
     *ConnectionBuffer
 
     read_buffer_size int
+
+    protocolType EProtocolType
     connectionType EConnType
     id int
     conn *net.UDPConn
@@ -53,6 +55,7 @@ func NewUdpConnection(newcid int, conn *net.UDPConn, endianer gts.IEndianer, use
         receiveChan: make(chan bool, 20),
         quit:     make(chan bool),
         Quit:     make(chan bool),
+        protocolType: EPROTOCOL_TYPE_UDP,
     }
 
     //创建go的线程 使用Goroutine
@@ -126,6 +129,9 @@ func (c *UdpConnection) Connect(addr string) bool {
 
 
 func (c *UdpConnection) ConnReader(buffer []byte) {
+    gts.Trace("udpConnReader read to buff:%d, % X",len(buffer), buffer)
+    gts.Trace("udpConnReader read to buff:%q",buffer)
+
     c.Stream.Write(buffer)
     c.receiveChan <- true
 }
@@ -180,6 +186,7 @@ func (c *UdpConnection) ConnSenderServer() {
 
 
 func (c *UdpConnection) SetReceiveCallback(cf ReceiveFunc)  {
+    gts.Trace("udp connection setReceiveCallback")
     c.receiveCallback = cf
 }
 
@@ -190,6 +197,10 @@ func (c *UdpConnection) SetCloseCallback(cf CommonCallbackFunc) {
 //func (c *UdpConnection) SetRoutePack(route IRoutePack) {
     //c.routePack = route
 //}
+
+func (c *UdpConnection) GetProtocolType() EProtocolType {
+    return c.protocolType
+}
 
 func (c *UdpConnection) GetType() EConnType {
     return c.connectionType

@@ -171,9 +171,9 @@ func (wh *Wormhole) ctrlClosed(id int) {
 
 
 func (wh *Wormhole) SendPacket(packet *RoutePacket) {
-    gts.Trace("sendprotocol type:%d,", wh.sendConnection.GetProtocolType())
-    gts.Trace(wh.fromType)
     bytes := wh.routePack.Pack(packet)
+    gts.Trace("sendprotocol type:%d, %d \n", wh.sendConnection.GetProtocolType(), int(wh.fromType), "\n")
+    wh.ctrlConnection.Send(bytes)
 }
 
 
@@ -185,8 +185,7 @@ func (wh *Wormhole) Broadcast(packet *RoutePacket) {
 
 
 func (wh *Wormhole) SendRaw(raw []byte) {
-    gts.Trace("sendprotocol type:%d,", wh.sendConnection.GetProtocolType())
-    gts.Trace(wh.fromType)
+    gts.Trace("sendprotocol type:%d", wh.sendConnection.GetProtocolType())
     wh.ctrlConnection.Send(raw)
 }
 
@@ -205,7 +204,7 @@ func (wh *Wormhole) Send(guin int, data []byte) {
     bytes := wh.routePack.Pack(packet)
     gts.Trace("sendprotocol type:%d,", wh.sendConnection.GetProtocolType())
     gts.Trace(wh.fromType)
-    wh.ctrlConnection.Send(bytes)
+   wh.ctrlConnection.Send(bytes)
 }
 
 

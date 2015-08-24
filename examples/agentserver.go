@@ -38,15 +38,17 @@ func NewAgentToLogic(guin int, manager wormhole.IWormholeManager, routepack worm
     aw := &AgentToLogic {
         AgentToLogicWormhole: server.NewAgentToLogicWormhole(guin, manager, routepack),
     }
-    aw.RegisterSub(aw, "ProcessPacket")
+    //aw.RegisterSub(aw, "ProcessPacket")
 
     return aw
 }
 
-
+/*
 func (aw *AgentToLogic) ProcessPacket(dp *wormhole.RoutePacket) {
-    gts.Trace("agenttologic processpacket receive %d route packets",dp)
+    gts.Trace("agenttologic processpack receive:\n%q",dp)
+
 }
+*/
 //AgentToLogic end
 
 
@@ -59,16 +61,15 @@ func NewAgentToClient(guin int, manager wormhole.IWormholeManager, routepack wor
     aw := &AgentToClient {
         AgentToClientWormhole: server.NewAgentToClientWormhole(guin, manager, routepack),
     }
-    aw.RegisterSub(aw)
 
     return aw
 }
 
-
+/*
 func (aw *AgentToClient) ProcessPackets(dps []*wormhole.RoutePacket) {
     gts.Trace("agenttoclientwormhole processpackets receive %d route packets",len(dps))
-    gts.Trace("ProcessPackets:::sldhrq8903246dsfq238946204\n%q", dps)
-}
+    gts.Trace("ProcessPackets:\n%q", dps)
+}*/
 //AgentToClient end
 
 

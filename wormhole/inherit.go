@@ -59,9 +59,10 @@ func (i *Inherit) CallSub(method string, params ...interface{}) {
             args[i] = reflect.ValueOf(param)
         }
         method.Call(args)
-        return
+        return// true
     }
     panic("panic:'s Method ProcessPackets need override write by sub object")
+    //return false
 }
 
 

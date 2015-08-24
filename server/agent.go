@@ -80,8 +80,8 @@ func NewAgent(
     clientWormholes.SetServer(s)
     logicWormholes.SetServer(s)
 
-    gts.Trace("agent is new:")
-    gts.Trace(clientTcpAddr, clientUdpAddr, logicTcpAddr, logicUdpAddr)
+    gts.Trace("agent is new:%s,%s,%s,%s,%s", clientTcpAddr, clientUdpAddr, logicTcpAddr, logicUdpAddr)
+
     s.clientServer = NewServer(
         "client-"+name, serverId, EWORMHOLE_TYPE_AGENT,
         clientTcpAddr, clientUdpAddr, maxConnections,
@@ -196,4 +196,5 @@ func NewAgentFromIni(
         makeClientWormhole,
         makeLogicWormhole)
 }
+
 

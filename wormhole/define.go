@@ -100,6 +100,13 @@ const(
 )
 
 
+type EProtocolType byte
+const(
+    EPROTOCOL_TYPE_TCP EProtocolType = iota + 1
+    EPROTOCOL_TYPE_UDP
+)
+
+
 type IStream interface {
     GetPos() int
     Len() int
@@ -125,6 +132,8 @@ type IConnection interface {
     //GetStream() IStream
 
     GetBuffer() *ConnectionBuffer
+
+    GetProtocolType () EProtocolType
 
     GetType() EConnType
     SetType(t EConnType)

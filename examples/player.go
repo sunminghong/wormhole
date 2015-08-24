@@ -19,42 +19,57 @@ import (
 	"os"
     "flag"
     "runtime"
+    "strconv"
 
     iniconfig "github.com/sunminghong/iniconfig"
     gts "github.com/sunminghong/gotools"
 
     "wormhole/wormhole"
-    "wormhole/server"
-
 )
 
 
 type ClientWormhole struct {
-    *wormhole.ClientWormhole
+    *wormhole.Wormhole
 }
 
 
 func NewClientWormhole(guin int, manager wormhole.IWormholeManager, routepack wormhole.IRoutePack) wormhole.IWormhole {
     aw := &ClientWormhole {
-        Wormhole: server.NewWormhole(guin, manager, routepack),
+        Wormhole: wormhole.NewWormhole(guin, manager, routepack),
     }
-    aw.RegisterSub()
+    aw.RegisterSub(aw)
 
     return aw
 }
 
 
-func (aw *ClientWormhole) ProcessPackets(dp []*wormhole.RoutePacket) {
-    gts.Trace("clienttologic processpacket receive %d route packets",dp)
+func (wh *ClientWormhole) Init() {
+    gts.Trace("clientwormhole is init")
+
+    
+    //wh.Send(0, []byte("this message is from player 1 !"))
+    //wh.Send(0, []byte("this message is from player 2 !"))
+    //wh.Send(0, []byte("this message is from player 3 !"))
+    //wh.Send(0, []byte("this message is from player 4 !"))
+    //wh.Send(0, []byte("this message is from player 5 !"))
+}
+
+func (wh *ClientWormhole) ProcessPackets(dps []*wormhole.RoutePacket) {
+    gts.Trace("clientwormhole processpacket receive %d route packets",len(dps))
+    for _, dp := range dps {
+        //gts.Trace(gts.utils.ByteString(dp.Data))
+        gts.Trace("%q", dp)
+    }
+
 }
 //ClientWormhole end
 
 
-var client *server.Client
+var client *wormhole.Client
 
 
 var (
-    clientConf=flag.String("clientConf","client1.conf","client server config file")
+    clientConf=flag.String("clientConf","agent1.conf","client server config file")
 )
 
 
@@ -69,8 +84,20 @@ func main() {
         return
     }
 
-    var endianer gts.IEndianer
     section := "Default"
+
+    clientTcpAddr, err := c.GetString(section, "clientTcpAddr")
+    if err != nil {
+        gts.Error(err.Error())
+        return
+    }
+
+    clientUdpAddr, err := c.GetString(section, "clientUdpAddr")
+    if err != nil {
+        gts.Warn(err.Error())
+    }
+
+    var endianer gts.IEndianer
     endian, err := c.GetInt(section, "endian")
     if err == nil {
         endianer = gts.GetEndianer(endian)
@@ -78,23 +105,19 @@ func main() {
         endianer = gts.GetEndianer(gts.LittleEndian)
     }
     routepack := wormhole.NewRoutePack(endianer)
+    var cwormholes wormhole.IWormholeManager
 
-    cwormholes := wormhole.NewWormholeManager(routepack, wormhole.MAX_CONNECTIONS,wormhole.EWORMHOLE_TYPE_CLIENT)
+    client = wormhole.NewClient(clientTcpAddr, clientUdpAddr, routepack, cwormholes,NewClientWormhole, wormhole.EWORMHOLE_TYPE_CLIENT)
+    client.Connect()
 
-    dispatcher := server.NewDispatcher(routepack)
-    lwormholes := server.NewLogicManager(routepack, dispatcher)
-    client := server.NewClientFromIni(c,routepack,cwormholes,lwormholes,NewClientToClient,NewClientWormhole)
+    gts.Info("----------------client connect to %s,%s-----------------",clientTcpAddr,clientUdpAddr)
 
-    client.Start()
-
-    gts.Info("----------------client server is running!-----------------",client.GetServerId())
 
     quit := make(chan bool)
     go exit(quit)
 
     <-quit
 }
-
 
 func exit(quit chan bool) {
     for {
@@ -104,6 +127,13 @@ func exit(quit chan bool) {
         if ru == 115 {
             quit <- true
             return
+        } else {
+            wh := client.GetWormhole()
+            for ii:=1;ii <= 1000; ii++ {
+                wh.Send(0, []byte("this message is from player " + strconv.Itoa(ii) + " !"))
+            }
         }
     }
 }
+
+

@@ -63,8 +63,6 @@ func NewClient(
     }
 
     c.wormType = wormType
-
-    c.Connect()
     return c
 }
 
@@ -119,6 +117,8 @@ func (c *Client) receiveTcpPackets(conn IConnection, dps []*RoutePacket) {
             c.initWormhole(dp, conn)
             c.wormhole.Init()
 
+            fromType := EWormholeType(dp.Data[0])
+            c.wormhole.SetFromType(fromType)
         } else if dp.Type == EPACKET_TYPE_UDP_SERVER {
             c.guin = dp.Guin
 
@@ -164,14 +164,11 @@ func (c *Client) initWormhole(dp *RoutePacket, conn IConnection) {
     //将该连接绑定到wormhole，
     //并且connection的receivebytes将被wormhole接管
     //该函数将不会被该connection调用
-    c.wormhole.AddConnection(conn, ECONN_TYPE_CTRL)
+    c.wormhole.AddConnection(conn, ECONN_TYPE_DATA)
     if c.wormholes != nil {
         c.wormholes.Add(c.wormhole)
         gts.Debug("has clients:",c.wormholes.Length())
     }
-
-    fromType := EWormholeType(dp.Data[0])
-    c.wormhole.SetFromType(fromType)
 }
 
 

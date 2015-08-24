@@ -52,6 +52,12 @@ func (aw *LogicToAgent) Init() {
 
 func (aw *LogicToAgent) ProcessPackets(dps []*wormhole.RoutePacket) {
     gts.Trace("logicToAgent processpackets receive %d route packets",len(dps))
+
+    for _, dp := range dps {
+        gts.Trace("%q",dp)
+        //gts.Trace("%q",gts.utils.ByteString(dp.Data))
+        aw.SendPacket(dp)
+    }
 }
 //logicToAgent end
 

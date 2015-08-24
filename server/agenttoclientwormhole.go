@@ -31,6 +31,7 @@ func NewAgentToClientWormhole(guin int, manager IWormholeManager, routepack IRou
         Wormhole : NewWormhole(guin, manager, routepack),
     }
 
+    aw.Inherit.RegisterSub(aw)
     return aw
 }
 
@@ -41,11 +42,11 @@ func (aw *AgentToClientWormhole) Init() {
 
 
 func (aw *AgentToClientWormhole) ProcessPackets(dps []*RoutePacket) {
-    gts.Trace("agentwormhole processpackets receive %d route packets", len(dps))
+    gts.Trace("agenttoclientwormhole processpackets receive %d packets", len(dps))
 
     for _,dp := range dps {
-        print("%q", dp)
-        print("receive client data:% X", dp.Data)
+        gts.Trace("%q", dp)
+        gts.Trace("guin:",aw.GetGuin())
 
         dp.Guin = aw.GetGuin()
 

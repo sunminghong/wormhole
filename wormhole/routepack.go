@@ -212,6 +212,7 @@ func (d *RoutePack) packHeader(dp *RoutePacket) []byte {
 
 //对数据进行封包
 func (d *RoutePack) Pack(dp *RoutePacket) []byte {
+    gts.Trace("routepack():%q", dp)
     head := d.packHeader(dp)
 
     ilen := len(dp.Data)

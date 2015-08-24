@@ -39,6 +39,14 @@ func (alw *AgentToLogicWormhole) Init() {
 }
 
 
+func (alw *AgentToLogicWormhole) ProcessPacket(dp *RoutePacket) {
+    gts.Trace("agenttologicwormhole processpack receive:\n%q",dp)
+    if agent, ok := alw.GetManager().GetServer().(*Agent);ok {
+        agent.ClientWormholes.Send(dp.Guin, dp.Data)
+    }
+}
+
+
 func (alw *AgentToLogicWormhole) ProcessPackets(dps []*RoutePacket) {
     gts.Trace("agenttologicwormhole processpackets receive %d route packets", len(dps))
     for _, dp := range dps {
@@ -46,7 +54,7 @@ func (alw *AgentToLogicWormhole) ProcessPackets(dps []*RoutePacket) {
             lm := alw.GetManager().(*LogicManager)
             lm.Register(dp.Data, alw)
         } else {
-            alw.Inherit.CallSub("ProcessPacket", dp)
+            alw.ProcessPacket(dp)
         }
     }
 }

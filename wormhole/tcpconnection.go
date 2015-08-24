@@ -19,6 +19,7 @@ type TcpConnection struct {
     *ConnectionBuffer
 
     read_buffer_size int
+    protocolType EProtocolType
     connectionType EConnType
     id int
     conn net.Conn
@@ -57,6 +58,7 @@ func NewTcpConnection(newcid int, conn net.Conn, endianer gts.IEndianer) *TcpCon
         outgoingBytes: make(chan []byte),
         quit:     make(chan bool),
         Quit:     make(chan bool),
+        protocolType: EPROTOCOL_TYPE_TCP,
 
     }
 
@@ -126,7 +128,8 @@ func (c *TcpConnection) ConnReader() {
             break
         }
 
-        gts.Trace("ConnReader read to buff:%d, % X",bytesRead, buffer[:12])
+        gts.Trace("tcpConnReader read to buff:%d, % X",bytesRead, buffer[:bytesRead])
+        gts.Trace("tcpConnReader read to buff:%q",buffer[:bytesRead])
         c.Stream.Write(buffer[0:bytesRead])
         c.receiveCallback(c)
 
@@ -177,9 +180,16 @@ func (c *TcpConnection) SetCloseCallback(cf CommonCallbackFunc) {
     //c.routePack = route
 //}
 
+
+func (c *TcpConnection) GetProtocolType() EProtocolType {
+    return c.protocolType
+}
+
+
 func (c *TcpConnection) GetType() EConnType {
     return c.connectionType
 }
+
 
 func (c *TcpConnection) SetType(t EConnType) {
     c.connectionType = t
