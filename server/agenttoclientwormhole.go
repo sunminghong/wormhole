@@ -49,6 +49,7 @@ func (aw *AgentToClientWormhole) ProcessPackets(dps []*RoutePacket) {
         gts.Trace("guin:",aw.GetGuin())
 
         dp.Guin = aw.GetGuin()
+        dp.Type = dp.Type | 1
 
         //转发给logic server
         //根据guin进行hash运算非配到相应的logic server

@@ -44,7 +44,7 @@ func NewLogic(
     routepack IRoutePack, wm IWormholeManager,
     makeWormhole NewWormholeFunc, group string) *Logic {
 
-    ls := &Logic{
+    ls := &Logic {
         routepack: routepack,
 
         serverId: serverId,
@@ -66,8 +66,8 @@ func (ls *Logic) GetServerId() int {
 }
 
 
-func (ls *Logic) ConnectAgent(tcpAddr string, udpAddr string) {
-    c := NewClient(tcpAddr, udpAddr, ls.routepack, ls.wormholes,
+func (ls *Logic) ConnectAgent(tcpAddr string) {
+    c := NewClient(tcpAddr, ls.routepack, ls.wormholes,
         ls.makeWormhole, ls.serverType)
     c.Connect()
 
@@ -177,12 +177,7 @@ func (ls *Logic) ConnectFromIni(c *iniconfig.ConfigFile) {
             continue
         }
 
-        udpAddr, err := c.GetString(section, "udpAddr")
-        if err != nil {
-            gts.Warn(err.Error())
-        }
-
-        ls.ConnectAgent(tcpAddr, udpAddr)
+        ls.ConnectAgent(tcpAddr)
     }
 }
 

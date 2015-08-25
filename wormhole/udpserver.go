@@ -32,7 +32,7 @@ type UdpServer struct {
     makeConn NewUdpConnectionFunc
     makeWormhole NewWormholeFunc
 
-    udpAddrs map[*net.UDPAddr]*UdpConnection
+    udpAddrs map[string]*UdpConnection
 }
 
 
@@ -51,7 +51,7 @@ func NewUdpServer(
             name,serverid, serverType, addr, maxConnections, routePack, wm),
         makeConn: makeConn,
         makeWormhole: makeWormhole,
-        udpAddrs: make(map[*net.UDPAddr]*UdpConnection),
+        udpAddrs: make(map[string]*UdpConnection),
     }
 
     s.udp_read_buffer_size = 1024
@@ -83,10 +83,11 @@ func (s *UdpServer) Start() {
 
             buffer := make([]byte, s.udp_read_buffer_size)
             n, fromAddr, err := sock.ReadFromUDP(buffer)
+            key := fromAddr.String()
             if err == nil {
                 //log.Println("recv", n, from)
-                gts.Trace("udp connect from :%s", fromAddr)
-                udpConn, ok:= s.udpAddrs[fromAddr]
+                gts.Trace("udp connect from: %s", fromAddr)
+                udpConn, ok:= s.udpAddrs[key]
                 if !ok {
                     newcid := s.AllocId()
                     udpConn = s.makeConn(
@@ -96,8 +97,9 @@ func (s *UdpServer) Start() {
                         fromAddr,
                     )
 
+                    gts.Trace("new udp connection")
                     udpConn.SetReceiveCallback(s.receiveUdpBytes)
-                    s.udpAddrs[fromAddr] = udpConn
+                    s.udpAddrs[key] = udpConn
                 }
 
                 udpConn.ConnReader(buffer[0:n])
@@ -105,12 +107,13 @@ func (s *UdpServer) Start() {
                 e, ok := err.(net.Error)
                 if !ok || !e.Timeout() {
                     gts.Trace("recv error", err.Error(), fromAddr)
-                    delete(s.udpAddrs, fromAddr)
+                    delete(s.udpAddrs, key)
                 }
             }
         }
     }()
 }
+
 
 func (s *UdpServer) receiveUdpBytes(conn IConnection) {
     gts.Trace("udp server receiveBytes:% X", conn.GetBuffer().Stream.Bytes())
@@ -154,8 +157,7 @@ func (s *UdpServer) receiveUdpPackets(conn IConnection, dps []*RoutePacket) {
             //并且connection的receivebytes将被wormhole接管
             //该函数将不会被该connection调用
             wh.AddConnection(conn, ECONN_TYPE_DATA)
-            gts.Trace("has wormholes:",s.Wormholes.Length())
-
+            gts.Trace("has wormholes:%d\n-----------------------------------------------------------------------------",s.Wormholes.Length())
 
             fromType := EWormholeType(dp.Data[0])
             wh.SetFromType(fromType)

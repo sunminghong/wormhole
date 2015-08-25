@@ -92,11 +92,6 @@ func main() {
         return
     }
 
-    clientUdpAddr, err := c.GetString(section, "clientUdpAddr")
-    if err != nil {
-        gts.Warn(err.Error())
-    }
-
     var endianer gts.IEndianer
     endian, err := c.GetInt(section, "endian")
     if err == nil {
@@ -107,11 +102,10 @@ func main() {
     routepack := wormhole.NewRoutePack(endianer)
     var cwormholes wormhole.IWormholeManager
 
-    client = wormhole.NewClient(clientTcpAddr, clientUdpAddr, routepack, cwormholes,NewClientWormhole, wormhole.EWORMHOLE_TYPE_CLIENT)
+    client = wormhole.NewClient(clientTcpAddr, routepack, cwormholes,NewClientWormhole, wormhole.EWORMHOLE_TYPE_CLIENT)
     client.Connect()
 
-    gts.Info("----------------client connect to %s,%s-----------------",clientTcpAddr,clientUdpAddr)
-
+    gts.Info("----------------client connect to %s,%s-----------------",clientTcpAddr)
 
     quit := make(chan bool)
     go exit(quit)

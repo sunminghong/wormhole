@@ -145,34 +145,36 @@ func (s *TcpServer) receivePackets(conn IConnection, dps []*RoutePacket) {
             //将该连接绑定到wormhole，
             //并且connection的receivebytes将被wormhole接管
             //该函数将不会被该connection调用
-            wh.AddConnection(conn, ECONN_TYPE_CTRL)
+            wh.AddConnection(conn, ECONN_TYPE_DATA)
             s.Wormholes.Add(wh)
             gts.Debug("has clients:",s.Wormholes.Length())
 
             fromType := EWormholeType(dp.Data[0])
             wh.SetFromType(fromType)
-            //if fromType == EWORMHOLE_TYPE_CLIENT {
-                //wh.SetFromId(0)
-            //} else if fromType == EWORMHOLE_TYPE_SERVER {
-                //wh.SetFromId(0)
-            //}
+
+            data := make([]byte, len(s.udpAddr)+1)
+            data[0] = byte(s.ServerType)
+            copy(data[1:], []byte(s.udpAddr))
 
             //hello to client 
             packet := &RoutePacket {
                 Type:   EPACKET_TYPE_HELLO,
                 Guin:   guin,
-                Data:   []byte{byte(s.ServerType)},
+                //Data:   []byte{byte(s.ServerType)},
+                Data:   data,
             }
             wh.SendPacket(packet)
 
             wh.Init()
 
+            /*
             //hello udp addr to client
             if len(s.udpAddr) > 0 {
                 packet.Type = EPACKET_TYPE_UDP_SERVER
                 packet.Data = []byte(s.udpAddr)
                 wh.SendPacket(packet)
             }
+            */
 
             gts.Trace("server send back hello:,%s,%q",s.udpAddr, packet)
             break

@@ -47,14 +47,13 @@ type Client struct {
 
 
 func NewClient(
-    tcpAddr string, udpAddr string,
+    tcpAddr string,
     routepack IRoutePack, wm IWormholeManager,
     makeWormhole NewWormholeFunc,
     wormType EWormholeType) *Client {
 
     c := &Client{
         tcpAddr : tcpAddr,
-        udpAddr : udpAddr,
         routepack: routepack,
         makeWormhole: makeWormhole,
         wormholes: wm,
@@ -119,31 +118,40 @@ func (c *Client) receiveTcpPackets(conn IConnection, dps []*RoutePacket) {
 
             fromType := EWormholeType(dp.Data[0])
             c.wormhole.SetFromType(fromType)
-        } else if dp.Type == EPACKET_TYPE_UDP_SERVER {
-            c.guin = dp.Guin
+
+            if len(dp.Data) > 1 {
+                c.udpAddr = string(dp.Data[1:])
+            }
+
+        //} else if dp.Type == EPACKET_TYPE_UDP_SERVER {
+            //c.guin = dp.Guin
+            //c.udpAddr = string(dp.Data)
 
             //连接udp server
-            c.udpConn = NewUdpConnection(1, nil, c.routepack.GetEndianer(), nil)
+            c.udpConn = NewUdpConnection(1,nil,c.routepack.GetEndianer(),nil)
 
-            if c.udpConn.Connect(c.udpAddr) {
+            if len(c.udpAddr) > 0 {
                 gts.Trace("client send udp hello:(%s), wormtype:(%d).", c.udpAddr, c.wormType)
+                if c.udpConn.Connect(c.udpAddr) {
+                    //hello to tcp server
+                    packet := &RoutePacket {
+                        Type:   EPACKET_TYPE_HELLO,
+                        Guin:   c.guin,
+                        Data:   []byte{byte(c.wormType)},
+                    }
+                    c.udpConn.Send(c.routepack.Pack(packet))
 
-                //hello to tcp server
-                packet := &RoutePacket {
-                    Type:   EPACKET_TYPE_HELLO,
-                    Guin:   c.guin,
-                    Data:   []byte{byte(c.wormType)},
+                    c.initWormhole(dp, c.udpConn)
+                    print("\n-----------------------------------------------------------\n")
+
+                } else {
+                    gts.Warn("dial to udp server lost:%s", c.udpAddr)
                 }
-                c.udpConn.Send(c.routepack.Pack(packet))
-
-                c.initWormhole(dp, c.udpConn)
-
-            } else {
-                gts.Warn("dial to udp server lost:%s", c.udpAddr)
             }
         }
     }
 }
+
 
 func (c *Client) initWormhole(dp *RoutePacket, conn IConnection) {
      //接到连接方hello包

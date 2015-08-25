@@ -147,8 +147,12 @@ func (wh *Wormhole) AddConnection(conn IConnection, t EConnType) {
 
 
 func (wh *Wormhole) receiveBytes(conn IConnection) {
-    gts.Trace("wormhole receiveBytes:% X", conn.GetBuffer().Stream.Bytes())
-    gts.Trace("wormhole receiveBytes:%q", conn.GetBuffer().Stream.Bytes())
+    if len(conn.GetBuffer().Stream.Bytes()) < 7 {
+        return
+    }
+
+    //gts.Trace("wormhole receiveBytes:% X", conn.GetBuffer().Stream.Bytes())
+    //gts.Trace("wormhole receiveBytes:%q", conn.GetBuffer().Stream.Bytes())
     n, dps := wh.routePack.Fetch(conn.GetBuffer())
     if n > 0 {
         //wh.receivePacketCallback(wh, dps)
@@ -165,29 +169,26 @@ func (wh *Wormhole) dataClosed(id int) {
 func (wh *Wormhole) ctrlClosed(id int) {
     wh.dataConnection = nil
     wh.ctrlConnection = nil
+    wh.sendConnection = nil
 
-    wh.closeCallback(int(wh.guin))
+    wh.closeCallback(wh.guin)
 }
 
 
 func (wh *Wormhole) SendPacket(packet *RoutePacket) {
-    gts.Trace("sendprotocol type:%d,", wh.sendConnection.GetProtocolType())
-    gts.Trace(wh.fromType)
     bytes := wh.routePack.Pack(packet)
+    wh.SendRaw(bytes)
 }
 
 
-/*
-func (wh *Wormhole) Broadcast(packet *RoutePacket) {
-    wh.wormholes.Broadcast(packet)
-}
-*/
-
-
-func (wh *Wormhole) SendRaw(raw []byte) {
-    gts.Trace("sendprotocol type:%d,", wh.sendConnection.GetProtocolType())
-    gts.Trace(wh.fromType)
-    wh.ctrlConnection.Send(raw)
+func (wh *Wormhole) SendRaw(bytes []byte) {
+    if len(bytes) <= 1 {
+        gts.Trace("sendprotocol type:%d", wh.sendConnection.GetProtocolType())
+        wh.sendConnection.Send(bytes)
+    } else {
+        gts.Trace("sendprotocol type:%d", wh.ctrlConnection.GetProtocolType())
+        wh.ctrlConnection.Send(bytes)
+    }
 }
 
 
@@ -200,13 +201,17 @@ func (wh *Wormhole) Send(guin int, data []byte) {
     if wh.fromType == EWORMHOLE_TYPE_AGENT {
         packet.Type = EPACKET_TYPE_DELAY
     }
-    packet.Type = packet.Type + 1
 
     bytes := wh.routePack.Pack(packet)
-    gts.Trace("sendprotocol type:%d,", wh.sendConnection.GetProtocolType())
-    gts.Trace(wh.fromType)
-    wh.ctrlConnection.Send(bytes)
+    wh.SendRaw(bytes)
 }
+
+
+/*
+func (wh *Wormhole) Broadcast(packet *RoutePacket) {
+    wh.wormholes.Broadcast(packet)
+}
+*/
 
 
 func (wh *Wormhole) Broadcast(guin int, data []byte) {

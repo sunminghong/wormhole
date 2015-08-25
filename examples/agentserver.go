@@ -40,8 +40,15 @@ func NewAgentToLogic(guin int, manager wormhole.IWormholeManager, routepack worm
     }
     //aw.RegisterSub(aw, "ProcessPacket")
 
+    aw.SetCloseCallback(aw.closed)
     return aw
 }
+
+
+func (aw *AgentToLogic) closed(guin int) {
+    gts.Trace("agent to logic closed")
+}
+
 
 /*
 func (aw *AgentToLogic) ProcessPacket(dp *wormhole.RoutePacket) {
@@ -62,8 +69,16 @@ func NewAgentToClient(guin int, manager wormhole.IWormholeManager, routepack wor
         AgentToClientWormhole: server.NewAgentToClientWormhole(guin, manager, routepack),
     }
 
+    aw.SetCloseCallback(aw.closed)
+
     return aw
 }
+
+
+func (aw *AgentToClient) closed(guin int) {
+    gts.Trace("agent to client closed")
+}
+
 
 /*
 func (aw *AgentToClient) ProcessPackets(dps []*wormhole.RoutePacket) {

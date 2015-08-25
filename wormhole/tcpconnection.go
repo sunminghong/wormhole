@@ -80,6 +80,7 @@ func (c *TcpConnection) GetBuffer() *ConnectionBuffer {
     return c.ConnectionBuffer
 }
 
+
 /*
 func (c *TcpConnection) GetStream() IStream {
     return c.stream
@@ -143,6 +144,7 @@ func (c *TcpConnection) ConnReader() {
     }
 }
 
+
 func (c *TcpConnection) ConnSender() {
     for {
         select {
@@ -172,9 +174,11 @@ func (c *TcpConnection) SetReceiveCallback(cf ReceiveFunc)  {
     c.receiveCallback = cf
 }
 
+
 func (c *TcpConnection) SetCloseCallback(cf CommonCallbackFunc) {
     c.closeCallback = cf
 }
+
 
 //func (c *TcpConnection) SetRoutePack(route IRoutePack) {
     //c.routePack = route
@@ -194,6 +198,7 @@ func (c *TcpConnection) GetType() EConnType {
 func (c *TcpConnection) SetType(t EConnType) {
     c.connectionType = t
 }
+
 
 func (c *TcpConnection) Close() {
     c.quit <- true

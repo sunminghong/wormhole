@@ -138,8 +138,10 @@ func (c *UdpConnection) ConnReader(buffer []byte) {
 
 
 func (c *UdpConnection) reader() {
-    <-c.receiveChan
-    c.receiveCallback(c)
+    for {
+        <-c.receiveChan
+        c.receiveCallback(c)
+    }
 }
 
 
@@ -190,25 +192,31 @@ func (c *UdpConnection) SetReceiveCallback(cf ReceiveFunc)  {
     c.receiveCallback = cf
 }
 
+
 func (c *UdpConnection) SetCloseCallback(cf CommonCallbackFunc) {
     c.closeCallback = cf
 }
+
 
 //func (c *UdpConnection) SetRoutePack(route IRoutePack) {
     //c.routePack = route
 //}
 
+
 func (c *UdpConnection) GetProtocolType() EProtocolType {
     return c.protocolType
 }
+
 
 func (c *UdpConnection) GetType() EConnType {
     return c.connectionType
 }
 
+
 func (c *UdpConnection) SetType(t EConnType) {
     c.connectionType = t
 }
+
 
 func (c *UdpConnection) Close() {
     c.quit <- true

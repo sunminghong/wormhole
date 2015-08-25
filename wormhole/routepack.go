@@ -10,6 +10,8 @@
 package wormhole
 
 import (
+    "fmt"
+
     gts "github.com/sunminghong/gotools"
 )
 
@@ -115,12 +117,16 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
             if head[0]==mask1 && head[1]==mask2 {
                 routeType = head[2]
                 _dpSize := 0
+                print(fmt.Sprintf("ilen:%d, pos:%d\n", ilen, pos))
                 if routeType & 1 == 1 {
                     guin = int(d.endianer.Uint32(head[3:]))
                     if ilen - pos < 4 {
+                        print("------------------------------------------")
                         return
                     }
                     head2,_ := cs.Read(4)
+                    print(fmt.Sprintf("head2:% X\n", head2))
+
                     _dpSize = int(d.endianer.Uint32(head2))
                 } else {
                     _dpSize = int(d.endianer.Uint32(head[3:]))
@@ -139,6 +145,7 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
                 }
             } else {
                 //如果错位则将缓存数据抛弃
+                fmt.Print("1111111111111111111111111111111111111")
                 cs.Reset()
                 return
             }
@@ -177,6 +184,7 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
         }
 
         if iiii == 0 {
+            fmt.Print("22222222222222222222222222222222222222")
             cs.Reset()
         }
 
@@ -212,7 +220,6 @@ func (d *RoutePack) packHeader(dp *RoutePacket) []byte {
 
 //对数据进行封包
 func (d *RoutePack) Pack(dp *RoutePacket) []byte {
-    gts.Trace("routepack():%q", dp)
     head := d.packHeader(dp)
 
     ilen := len(dp.Data)
