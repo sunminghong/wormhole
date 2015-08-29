@@ -17,7 +17,7 @@ import (
 type ILogicDispatcher interface {
     AddHandler(rule []byte, wh IWormhole)
     Dispatch(dp *RoutePacket) IWormhole
-    RemoveHandler(wh IWormhole)
+    RemoveHandler(guin int)
 }
 
 

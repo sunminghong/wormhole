@@ -24,12 +24,13 @@ type AgentToLogicWormhole struct {
 }
 
 
-func NewAgentToLogicWormhole(guin int, manager IWormholeManager, routepack IRoutePack) *AgentToLogicWormhole {
+func NewAgentToLogicWormhole(guin int, manager IWormholeManager, routepack IRoutePack) IWormhole { //*AgentToLogicWormhole {
     aw := &AgentToLogicWormhole{
         Wormhole : NewWormhole(guin, manager, routepack),
     }
 
     aw.RegisterSub(aw)
+    aw.SetCloseCallback(aw.closed)
     return aw
 }
 
@@ -41,8 +42,13 @@ func (alw *AgentToLogicWormhole) Init() {
 
 func (alw *AgentToLogicWormhole) ProcessPacket(dp *RoutePacket) {
     gts.Trace("agenttologicwormhole processpack receive:\n%q",dp)
-    if agent, ok := alw.GetManager().GetServer().(*Agent);ok {
-        agent.ClientWormholes.Send(dp.Guin, dp.Data)
+
+    if server, ok := alw.GetManager().GetServer().(*Agent);ok {
+        if acw, ok := server.ClientWormholes.Get(dp.Guin); ok {
+            //if aw, ok := acw.(*AgentToClientWormhole);ok {
+            aw := acw.(*AgentToClientWormhole)
+            aw.Send(dp.Guin, dp.Data)
+        }
     }
 }
 
@@ -60,7 +66,11 @@ func (alw *AgentToLogicWormhole) ProcessPackets(dps []*RoutePacket) {
 }
 
 
-func (alw *AgentToLogicWormhole) Close() {
+func (alw *AgentToLogicWormhole) closed(guin int) {
+    gts.Trace("agent to logic wormhole closed")
+
+    lm := alw.GetManager().(*LogicManager)
+    lm.Remove(alw.GetGuin())
 }
 
 

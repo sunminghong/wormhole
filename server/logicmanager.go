@@ -34,11 +34,17 @@ func NewLogicManager(routepack IRoutePack, dispatcher ILogicDispatcher) *LogicMa
     return wm
 }
 
-
-func (wm *LogicManager) Delay(dp *RoutePacket) {
+func (wm *LogicManager) Remove(guin int) {
     wm.wmlock.Lock()
     defer wm.wmlock.Unlock()
 
+    print("logicmanager remove")
+
+    wm.dispatcher.RemoveHandler(guin)
+    wm.WormholeManager.Remove(guin)
+}
+
+func (wm *LogicManager) Delay(dp *RoutePacket) {
     wh := wm.dispatcher.Dispatch(dp)
     if wh != nil {
         wh.SendPacket(dp)

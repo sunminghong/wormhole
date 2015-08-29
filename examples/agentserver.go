@@ -29,6 +29,7 @@ import (
 )
 
 
+/*
 type AgentToLogic struct {
     *server.AgentToLogicWormhole
 }
@@ -40,7 +41,7 @@ func NewAgentToLogic(guin int, manager wormhole.IWormholeManager, routepack worm
     }
     //aw.RegisterSub(aw, "ProcessPacket")
 
-    aw.SetCloseCallback(aw.closed)
+    //aw.SetCloseCallback(aw.closed)
     return aw
 }
 
@@ -48,15 +49,6 @@ func NewAgentToLogic(guin int, manager wormhole.IWormholeManager, routepack worm
 func (aw *AgentToLogic) closed(guin int) {
     gts.Trace("agent to logic closed")
 }
-
-
-/*
-func (aw *AgentToLogic) ProcessPacket(dp *wormhole.RoutePacket) {
-    gts.Trace("agenttologic processpack receive:\n%q",dp)
-
-}
-*/
-//AgentToLogic end
 
 
 type AgentToClient struct {
@@ -80,12 +72,12 @@ func (aw *AgentToClient) closed(guin int) {
 }
 
 
-/*
-func (aw *AgentToClient) ProcessPackets(dps []*wormhole.RoutePacket) {
-    gts.Trace("agenttoclientwormhole processpackets receive %d route packets",len(dps))
-    gts.Trace("ProcessPackets:\n%q", dps)
-}*/
+//func (aw *AgentToClient) ProcessPackets(dps []*wormhole.RoutePacket) {
+    //gts.Trace("agenttoclientwormhole processpackets receive %d route packets",len(dps))
+    //gts.Trace("ProcessPackets:\n%q", dps)
+//}
 //AgentToClient end
+*/
 
 
 var agent *server.Agent
@@ -121,7 +113,7 @@ func main() {
 
     dispatcher := server.NewDispatcher(routepack)
     lwormholes := server.NewLogicManager(routepack, dispatcher)
-    agent := server.NewAgentFromIni(c,routepack,cwormholes,lwormholes,NewAgentToClient,NewAgentToLogic)
+    agent := server.NewAgentFromIni(c,routepack,cwormholes,lwormholes,server.NewAgentToClientWormhole,server.NewAgentToLogicWormhole)
 
     agent.Start()
 

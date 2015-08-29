@@ -46,7 +46,6 @@ func NewClientWormhole(guin int, manager wormhole.IWormholeManager, routepack wo
 func (wh *ClientWormhole) Init() {
     gts.Trace("clientwormhole is init")
 
-    
     //wh.Send(0, []byte("this message is from player 1 !"))
     //wh.Send(0, []byte("this message is from player 2 !"))
     //wh.Send(0, []byte("this message is from player 3 !"))
@@ -123,8 +122,8 @@ func exit(quit chan bool) {
             return
         } else {
             wh := client.GetWormhole()
-            for ii:=1;ii <= 1000; ii++ {
-                wh.Send(0, []byte("this message is from player " + strconv.Itoa(ii) + " !"))
+            for ii:=1;ii <= 1; ii++ {
+                wh.Send(0, []byte(" this message is from player " + strconv.Itoa(ii) + " !"))
             }
         }
     }

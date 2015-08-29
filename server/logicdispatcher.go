@@ -106,11 +106,11 @@ func (r *Dispatcher) addRule(group int, wh IWormhole) {
 }
 
 
-func (r *Dispatcher) RemoveHandler(wh IWormhole) {
+func (r *Dispatcher) RemoveHandler(guin int) {
     for group, hands := range r.handlers {
         hs := []IWormhole{}
         for _, hand := range hands {
-            if hand.GetGuin() != wh.GetGuin() {
+            if hand.GetGuin() != guin {
                 hs = append(hs, hand)
             }
         }

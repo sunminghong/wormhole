@@ -71,6 +71,7 @@ func (wm *WormholeManager) Remove(guin int)  {
     wm.wmlock.Lock()
     defer wm.wmlock.Unlock()
 
+    print("wormholemanager remove")
     if _, ok := wm.wormholes[guin];ok {
         delete(wm.wormholes, guin)
     }
@@ -111,6 +112,7 @@ func (wm *WormholeManager) Send(guin int, data []byte) {
         }
         wh.Send(packet)
         */
+        print("wormholemanager send")
         wh.Send(guin, data)
     }
 }

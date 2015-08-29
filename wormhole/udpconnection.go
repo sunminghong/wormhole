@@ -46,7 +46,7 @@ type UdpConnection struct {
 func NewUdpConnection(newcid int, conn *net.UDPConn, endianer gts.IEndianer, userAddr *net.UDPAddr) *UdpConnection {
     c := &UdpConnection {
         ConnectionBuffer: &ConnectionBuffer{Stream:   gts.NewRWStream(1024, endianer)},
-        id:      newcid,
+        id:      10000 + newcid,
         conn:     conn,
         userAddr: userAddr,
 

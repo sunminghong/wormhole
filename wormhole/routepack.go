@@ -184,7 +184,6 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
         }
 
         if iiii == 0 {
-            fmt.Print("22222222222222222222222222222222222222")
             cs.Reset()
         }
 
