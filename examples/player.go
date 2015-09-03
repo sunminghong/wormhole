@@ -23,6 +23,7 @@ import (
 
     iniconfig "github.com/sunminghong/iniconfig"
     gts "github.com/sunminghong/gotools"
+    gutils "github.com/sunminghong/gotools/utils"
 
     "wormhole/wormhole"
 )
@@ -54,10 +55,10 @@ func (wh *ClientWormhole) Init() {
 }
 
 func (wh *ClientWormhole) ProcessPackets(dps []*wormhole.RoutePacket) {
-    gts.Trace("clientwormhole processpacket receive %d route packets",len(dps))
+    //gts.Trace("clientwormhole processpacket receive %d route packets",len(dps))
     for _, dp := range dps {
-        //gts.Trace(gts.utils.ByteString(dp.Data))
-        gts.Trace("%q", dp)
+        gts.Trace(gutils.ByteString(dp.Data))
+        //gts.Trace("%q", dp)
     }
 
 }
@@ -68,7 +69,7 @@ var client *wormhole.Client
 
 
 var (
-    clientConf=flag.String("clientConf","agent1.conf","client server config file")
+    clientConf=flag.String("clientConf","client1.conf","client server config file")
 )
 
 
@@ -122,8 +123,8 @@ func exit(quit chan bool) {
             return
         } else {
             wh := client.GetWormhole()
-            for ii:=1;ii <= 1; ii++ {
-                wh.Send(0, []byte(" this message is from player " + strconv.Itoa(ii) + " !"))
+            for ii:=1;ii <= 10000; ii++ {
+                wh.Send(0, 10 , []byte(" this message is from player " + strconv.Itoa(ii) + " !"))
             }
         }
     }

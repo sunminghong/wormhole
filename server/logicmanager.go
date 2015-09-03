@@ -38,8 +38,6 @@ func (wm *LogicManager) Remove(guin int) {
     wm.wmlock.Lock()
     defer wm.wmlock.Unlock()
 
-    print("logicmanager remove")
-
     wm.dispatcher.RemoveHandler(guin)
     wm.WormholeManager.Remove(guin)
 }

@@ -75,13 +75,13 @@ func (s *UdpServer) Start() {
 	}
 
     go func() {
+        buffer := make([]byte, s.udp_read_buffer_size)
         for {
             defer sock.Close()
             if s.Stop_ {
                 return
             }
 
-            buffer := make([]byte, s.udp_read_buffer_size)
             n, fromAddr, err := sock.ReadFromUDP(buffer)
             key := fromAddr.String()
             if err == nil {
@@ -106,7 +106,7 @@ func (s *UdpServer) Start() {
             } else {
                 e, ok := err.(net.Error)
                 if !ok || !e.Timeout() {
-                    gts.Trace("recv error", err.Error(), fromAddr)
+                    gts.Trace("recv errorserver:%s,%q.", key, err.Error())
                     delete(s.udpAddrs, key)
                 }
             }
@@ -131,6 +131,7 @@ func (s *UdpServer) receiveUdpPackets(conn IConnection, dps []*RoutePacket) {
              //接到连接方hello包
             var guin int
             var wh IWormhole
+            var ok bool
 
             if dp.Guin > 0 {
                 //TODO:重连处理
@@ -138,7 +139,7 @@ func (s *UdpServer) receiveUdpPackets(conn IConnection, dps []*RoutePacket) {
                 //比如在一定时间内可以重新连接会原有wormhole
 
                 guin = dp.Guin
-                if wh, ok := s.Wormholes.Get(guin);ok {
+                if wh, ok = s.Wormholes.Get(guin);ok {
                     if wh.GetState() == ECONN_STATE_SUSPEND {
                         wh.SetState(ECONN_STATE_ACTIVE)
                     } else if wh.GetState() == ECONN_STATE_DISCONNTCT {
@@ -157,7 +158,7 @@ func (s *UdpServer) receiveUdpPackets(conn IConnection, dps []*RoutePacket) {
             //并且connection的receivebytes将被wormhole接管
             //该函数将不会被该connection调用
             wh.AddConnection(conn, ECONN_TYPE_DATA)
-            gts.Trace("has wormholes:%d\n-----------------------------------------------------------------------------",s.Wormholes.Length())
+            gts.Trace("has wormholes:%d\n----------------------------------------------------------------", s.Wormholes.Length())
 
             fromType := EWormholeType(dp.Data[0])
             wh.SetFromType(fromType)

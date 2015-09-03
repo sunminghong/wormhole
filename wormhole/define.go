@@ -49,7 +49,6 @@ const (
     EPACKET_TYPE_UDP_SERVER = 22 | 1
     EPACKET_TYPE_HELLO = 24 | 1 //guin，data里面为发送方类型（如是ageng，client，gameserver）
     EPACKET_TYPE_LOGIC_REGISTER = 26 | 1  //注册logic 能处理的method分组
-
 )
 
 
@@ -58,10 +57,12 @@ type ConnectionBuffer struct {
     Guin int
     DPSize  int
     RouteType byte
+    Method int
 }
 
 
 type WriteFunc func (data []byte) (int,error)
+
 
 //datagram and datapacket define
 type IRoutePack interface {
@@ -87,6 +88,7 @@ type RoutePacket struct {
     Type  ERouteType
     Guin int
     Data  []byte
+    Method int
 }
 
 // data route layer end -----------------------------------------------
@@ -213,8 +215,8 @@ type IWormhole interface {
 
     SendRaw(data []byte)
     SendPacket(packet *RoutePacket)
-    Send(guin int, data []byte)
-    Broadcast(guin int, data []byte)
+    Send(guin int, method int, data []byte)
+    Broadcast(guin int, method int, data []byte)
 
     //SetReceivePacketCallback(receive ReceivePacketFunc)
 
@@ -241,8 +243,10 @@ type IWormholeManager interface {
     SetServer(server IServer)
     GetServer() IServer
 
-    Send(guin int, data []byte)
-    Broadcast(guin int, data []byte)
+    Send(guin int, method int, data []byte)
+    Broadcast(guin int, method int, data []byte)
+
+    Remove(guin int)
 
     Close(guin int)
     CloseAll()

@@ -41,6 +41,7 @@ type TcpConnection struct {
     //需要输出的数据流 的channel
     outgoingBytes chan []byte
 
+    closeded  bool
     quit chan bool
     Quit chan bool
 }
@@ -56,6 +57,8 @@ func NewTcpConnection(newcid int, conn net.Conn, endianer gts.IEndianer) *TcpCon
 
         outgoing: make(chan *RoutePacket, 1),
         outgoingBytes: make(chan []byte),
+
+        closeded:       false,
         quit:     make(chan bool),
         Quit:     make(chan bool),
         protocolType: EPROTOCOL_TYPE_TCP,
@@ -201,7 +204,12 @@ func (c *TcpConnection) SetType(t EConnType) {
 
 
 func (c *TcpConnection) Close() {
-    c.quit <- true
+    gts.Trace("tcp connection close1")
+    if !c.closeded {
+        c.closeded = true
+        c.quit <- true
+    }
+    gts.Trace("tcp connection close2")
 }
 
 

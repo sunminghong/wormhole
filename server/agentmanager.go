@@ -34,11 +34,11 @@ func NewAgentManager(routepack IRoutePack) *AgentManager {
 }
 
 
-func (wm *AgentManager) Send(guin int, data []byte) {
+func (wm *AgentManager) Send(guin int, method int, data []byte) {
     agentId, _,_ := ParseGuin(guin)
     wh, ok := wm.Get(agentId)
     if ok {
-        wh.Send(guin, data)
+        wh.Send(guin, method, data)
         return
     }
 

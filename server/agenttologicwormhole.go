@@ -47,7 +47,7 @@ func (alw *AgentToLogicWormhole) ProcessPacket(dp *RoutePacket) {
         if acw, ok := server.ClientWormholes.Get(dp.Guin); ok {
             //if aw, ok := acw.(*AgentToClientWormhole);ok {
             aw := acw.(*AgentToClientWormhole)
-            aw.Send(dp.Guin, dp.Data)
+            aw.Send(dp.Guin, dp.Method, dp.Data)
         }
     }
 }

@@ -10,7 +10,7 @@
 package wormhole
 
 import (
-    "fmt"
+    //"fmt"
 
     gts "github.com/sunminghong/gotools"
 )
@@ -60,7 +60,7 @@ func (d *RoutePack) decrypt(plan []byte){
 }
 
 
-//flag1(byte)+flag2(byte)+datatype(byte)[+guin(int32)]+data(datasize(int32)+body)
+//flag1(byte)+flag2(byte)+datatype(byte)+method(short)+[+guin(int32)]+data(datasize(int32)+body)
 //对数据进行拆包
 //func (d *RoutePack) fetchTcp(ci IConnection) (n int, dps []*RoutePacket) {
 func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
@@ -90,11 +90,11 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
             routeType = c.RouteType
         } else {
             //Trace("ilen,pos:%d,%d",ilen,pos)
-            if ilen-pos < 7 {
+            if ilen-pos < 9 {
                 return
             }
 
-            head,_ := cs.Read(7)
+            head,_ := cs.Read(9)
             d.decrypt(head)
 
             /*
@@ -117,19 +117,19 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
             if head[0]==mask1 && head[1]==mask2 {
                 routeType = head[2]
                 _dpSize := 0
-                print(fmt.Sprintf("ilen:%d, pos:%d\n", ilen, pos))
+
+                method := int(d.endianer.Uint16(head[3:5]))
                 if routeType & 1 == 1 {
-                    guin = int(d.endianer.Uint32(head[3:]))
+                    guin = int(d.endianer.Uint32(head[5:]))
                     if ilen - pos < 4 {
-                        print("------------------------------------------")
+                        cs.SetPos(-9)
                         return
                     }
                     head2,_ := cs.Read(4)
-                    print(fmt.Sprintf("head2:% X\n", head2))
 
                     _dpSize = int(d.endianer.Uint32(head2))
                 } else {
-                    _dpSize = int(d.endianer.Uint32(head[3:]))
+                    _dpSize = int(d.endianer.Uint32(head[5:]))
                 }
 
                 dpSize = _dpSize
@@ -137,6 +137,7 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
                 pos = cs.GetPos()
                 //Trace("ilen,pos,dpSize",ilen,pos,dpSize)
                 if ilen - pos < dpSize {
+                    c.Method = method
                     c.Guin = guin
                     c.DPSize = dpSize
                     c.RouteType = routeType
@@ -145,7 +146,6 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
                 }
             } else {
                 //如果错位则将缓存数据抛弃
-                fmt.Print("1111111111111111111111111111111111111")
                 cs.Reset()
                 return
             }
@@ -199,17 +199,18 @@ func (d *RoutePack) packHeader(dp *RoutePacket) []byte {
     if dp.Type & 1 == 1 {
         glen = TIDSize
     }
-    buf := make([]byte, 7 + glen)
+    buf := make([]byte, 9 + glen)
 
     buf[0] = byte(mask1)
     buf[1] = byte(mask2)
     buf[2] = byte(dp.Type)
+    d.endianer.PutUint16(buf[3:], uint16(dp.Method))
     ilen := len(dp.Data)
 
     if dp.Type & 1 == 1 {
-        d.endianer.PutUint32(buf[3:], uint32(dp.Guin))
+        d.endianer.PutUint32(buf[5:], uint32(dp.Guin))
     }
-    d.endianer.PutUint32(buf[3 + glen:], uint32(ilen))
+    d.endianer.PutUint32(buf[5 + glen:], uint32(ilen))
 
     d.encrypt(buf)
 
@@ -226,9 +227,9 @@ func (d *RoutePack) Pack(dp *RoutePacket) []byte {
     if dp.Type & 1 == 1 {
         glen = TIDSize
     }
-    buf := make([]byte, 7 + glen + ilen)
+    buf := make([]byte, 9 + glen + ilen)
     copy(buf,head)
-    copy(buf[7+glen:], dp.Data)
+    copy(buf[9 + glen:], dp.Data)
     return buf
 }
 

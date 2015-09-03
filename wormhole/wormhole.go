@@ -42,6 +42,7 @@ type Wormhole struct {
 
 
 func NewWormhole(guin int, wormholes IWormholeManager, routepack IRoutePack) *Wormhole {
+    gts.Trace("new wormhole:")
     wh := &Wormhole {
         Inherit:        NewInherit("ProcessPackets"),
         guin:           guin,
@@ -132,13 +133,15 @@ func (wh *Wormhole) AddConnection(conn IConnection, t EConnType) {
             wh.dataConnection.SetCloseCallback(wh.dataClosed)
         }
     } else {
-        wh.dataConnection = conn
-
         if wh.ctrlConnection == nil {
             wh.ctrlConnection = conn
+
             conn.SetType(ECONN_TYPE_CTRL)
             conn.SetCloseCallback(wh.ctrlClosed)
         } else {
+            gts.Trace("addConnection:dataclosed")
+
+            wh.dataConnection = conn
             conn.SetType(t)
             conn.SetCloseCallback(wh.dataClosed)
         }
@@ -153,7 +156,7 @@ func (wh *Wormhole) receiveBytes(conn IConnection) {
         return
     }
 
-    print("-------------------------------------------------------\n")
+    //print("-------------------------------------------------------\n")
     //gts.Trace("wormhole receiveBytes:% X", conn.GetBuffer().Stream.Bytes())
     //gts.Trace("wormhole receiveBytes:%q", conn.GetBuffer().Stream.Bytes())
     n, dps := wh.routePack.Fetch(conn.GetBuffer())
@@ -165,16 +168,32 @@ func (wh *Wormhole) receiveBytes(conn IConnection) {
 
 
 func (wh *Wormhole) dataClosed(id int) {
-    wh.dataConnection = nil
+    gts.Trace("dataClosed")
+
+    if wh.sendConnection == nil {
+        //wh.dataConnection.GetType() == wh.sendConnection.GetType() {
+        wh.sendConnection = wh.ctrlConnection
+    }
 }
 
 
 func (wh *Wormhole) ctrlClosed(id int) {
+    gts.Trace("ctrlClosed")
+
+    if wh.dataConnection != nil {
+        wh.dataConnection.Close()
+    }
+    if wh.ctrlConnection != nil {
+        wh.ctrlConnection.Close()
+    }
+
     wh.dataConnection = nil
     wh.ctrlConnection = nil
     wh.sendConnection = nil
 
+    gts.Trace("//////////////////////////////////////////")
     wh.closeCallback(wh.guin)
+    gts.Trace("------------------------------------------")
 }
 
 
@@ -186,7 +205,7 @@ func (wh *Wormhole) SendPacket(packet *RoutePacket) {
 
 func (wh *Wormhole) SendRaw(bytes []byte) {
     if len(bytes) <= 1024 {
-        gts.Trace("send send protocol type:%d,%d,%d",wh.GetGuin(),  wh.ctrlConnection.GetType(), wh.sendConnection.GetProtocolType())
+        gts.Trace("send send protocol type:%d,%d,%d",wh.GetGuin(), wh.ctrlConnection.GetType(), wh.sendConnection.GetProtocolType())
         wh.sendConnection.Send(bytes)
 
     } else {
@@ -206,10 +225,11 @@ func (wh *Wormhole) SendRaw(bytes []byte) {
 }
 
 
-func (wh *Wormhole) Send(guin int, data []byte) {
+func (wh *Wormhole) Send(guin int, method int, data []byte) {
     packet := &RoutePacket {
         Type:   EPACKET_TYPE_GENERAL,
         Guin:   guin,
+        Method: method,
         Data:   data,
     }
     if wh.fromType == EWORMHOLE_TYPE_AGENT {
@@ -228,14 +248,14 @@ func (wh *Wormhole) Broadcast(packet *RoutePacket) {
 */
 
 
-func (wh *Wormhole) Broadcast(guin int, data []byte) {
+func (wh *Wormhole) Broadcast(guin int, method int, data []byte) {
     //packet := &RoutePacket {
         //Type:   EPACKET_TYPE_BROADCAST,
         //Guin:   guin,
         //Data:   data,
     //}
 
-    wh.wormholes.Broadcast(guin, data)
+    wh.wormholes.Broadcast(guin, method, data)
 }
 
 

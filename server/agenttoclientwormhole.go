@@ -40,8 +40,13 @@ func NewAgentToClientWormhole(guin int, manager IWormholeManager, routepack IRou
 
 
 func (acw *AgentToClientWormhole) closed(guin int) {
-    gts.Trace("agent to client closed")
-    //TODO: send closed to logic
+    gts.Trace("agent to client closed0:%d",guin)
+    acw.GetManager().Remove(guin)
+
+    //if server, ok := acw.GetManager().GetServer().(*Agent);ok {
+        //print("wormholemanager remove 0")
+        //server.ClientWormholes.Remove(guin)
+    //}
 }
 
 

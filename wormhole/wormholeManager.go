@@ -12,6 +12,7 @@ package wormhole
 
 import (
     "sync"
+    gts "github.com/sunminghong/gotools"
 )
 
 type WormholeManager struct {
@@ -72,6 +73,8 @@ func (wm *WormholeManager) Remove(guin int)  {
     defer wm.wmlock.Unlock()
 
     print("wormholemanager remove")
+
+    gts.Trace("wormholemanager remove")
     if _, ok := wm.wormholes[guin];ok {
         delete(wm.wormholes, guin)
     }
@@ -99,7 +102,7 @@ func (wm *WormholeManager) CloseAll() {
 }
 
 
-func (wm *WormholeManager) Send(guin int, data []byte) {
+func (wm *WormholeManager) Send(guin int, method int, data []byte) {
     if wh, ok := wm.wormholes[guin];ok {
         /*
         packet := &RoutePacket {
@@ -113,15 +116,16 @@ func (wm *WormholeManager) Send(guin int, data []byte) {
         wh.Send(packet)
         */
         print("wormholemanager send")
-        wh.Send(guin, data)
+        wh.Send(guin, method, data)
     }
 }
 
 
-func (wm *WormholeManager) Broadcast(guin int, data []byte) {
+func (wm *WormholeManager) Broadcast(guin int, method int, data []byte) {
     packet := &RoutePacket {
         Type:   EPACKET_TYPE_BROADCAST,
         Guin:   guin,
+        Method: method,
         Data:   data,
     }
 
