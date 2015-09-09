@@ -158,7 +158,7 @@ func (s *UdpServer) receiveUdpPackets(conn IConnection, dps []*RoutePacket) {
             //并且connection的receivebytes将被wormhole接管
             //该函数将不会被该connection调用
             wh.AddConnection(conn, ECONN_TYPE_DATA)
-            gts.Trace("has wormholes:%d\n----------------------------------------------------------------", s.Wormholes.Length())
+            gts.Trace("has wormholes:%d\n-----------------------------------", s.Wormholes.Length())
 
             fromType := EWormholeType(dp.Data[0])
             wh.SetFromType(fromType)

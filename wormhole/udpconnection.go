@@ -37,6 +37,12 @@ type UdpFrame struct {
     Flag byte
     Data []byte
     Count int
+    //Buf []byte
+}
+
+func (uf *UdpFrame) ToString() {
+    //gts.Trace("% X", uf.Buf)
+    gts.Trace("%d, %d %d, % X", uf.OrderNo, uf.Flag, uf.Count, uf.Data)
 }
 
 
@@ -71,15 +77,36 @@ func (uf *UdpFrame) Unpack(rw *gts.RWStream) bool {
     switch uf.Flag {
     case UDPFRAME_FLAG_DATA:
         if rw.Len() < 2 {
+            rw.SetPos(-3)
+            gts.Trace("setpos:-3")
             return false
         }
 
-        length,err := rw.ReadUint16()
-        if err != nil || rw.Len() < int(length) {
+        buf, n := rw.Read(2)
+        if n < 2 {
+            return false
+        }
+        length := rw.Endianer.Uint16(buf)
+        leng := int(length)
+        //length,err := rw.ReadUint16()
+        gts.Trace("udpframe.unpack:%d", leng)
+        //if err != nil || rw.Len() < int(leng) {
+        if rw.Len() < int(leng) {
+            rw.SetPos(-5)
+            gts.Trace("setpos:-5, %d", leng)
             return false
         }
 
-        uf.Data,_ = rw.Read(int(length))
+        data,_ := rw.Read(int(leng))
+        uf.Data = make([]byte, leng)
+        copy(uf.Data, data)
+
+        /*
+        uf.Buf = make([]byte, leng + 5)
+        copy(uf.Buf, data)
+        copy(uf.Buf[3:], buf)
+        copy(uf.Buf[5:], uf.Data)
+        */
         return true
 
     case UDPFRAME_FLAG_DATA_GROUP:
@@ -100,9 +127,9 @@ type UdpConnection struct {
     lastValidOrderNo int
     lastOrderNo     int
     udpStream       *gts.RWStream
-    sendCache       map[int]*UdpFrame
-    recvCache       map[int]*UdpFrame
-    reqCache        map[int]*UdpFrame
+    sendCache       *gts.Map
+    recvCache       *gts.Map
+    reqCache        *gts.Map
 
     read_buffer_size int
 
@@ -141,12 +168,12 @@ func NewUdpConnection(newcid int, conn *net.UDPConn, endianer gts.IEndianer, use
         userAddr:       userAddr,
         udpStream:      gts.NewRWStream(1024, endianer),
 
-        sendNo:         0,
-    lastValidOrderNo:   1,
-        lastOrderNo:    1,
-        sendCache:      make(map[int]*UdpFrame,100),
-        recvCache:      make(map[int]*UdpFrame,100),
-        reqCache:       make(map[int]*UdpFrame,100),
+           sendNo:      0,
+ lastValidOrderNo:      1,
+      lastOrderNo:      1,
+        sendCache:      gts.NewMap(),
+        recvCache:      gts.NewMap(),
+        reqCache:       gts.NewMap(),
 
         //outgoing:       make(chan *RoutePacket, 5),
         //outgoingBytes:  make(chan []byte, 20),
@@ -155,8 +182,8 @@ func NewUdpConnection(newcid int, conn *net.UDPConn, endianer gts.IEndianer, use
 
         closeded:       false,
         quitInterval:   make(chan bool),
-        quitSender:           make(chan bool),
-        quitConnect:           make(chan bool),
+        quitSender:     make(chan bool),
+        quitConnect:    make(chan bool),
         protocolType :  EPROTOCOL_TYPE_UDP,
     }
 
@@ -187,18 +214,26 @@ func (c *UdpConnection) interval() {
 
 		case <-c.quitInterval:
             gts.Trace("interval")
-			break
+            goto end
 		}
 	}
+    end:
 	updateChan.Stop()
 }
 
 
 func (c *UdpConnection) reqCheck() {
-    for no, rframe := range c.reqCache {
+    reqCache := c.reqCache.All()
+    for no, val := range reqCache {
+        if val == nil {
+            gts.Trace("reqFrame is nil:%d", no)
+            continue
+        }
+
+        rframe := val.(*UdpFrame)
         rframe.Count -= 1
         if rframe.Count <= 0 {
-            gts.Trace("nonono:", no, len(c.reqCache))
+            gts.Trace("send req:", no, len(reqCache))
             //gts.Trace("rframe:::%d,%d,%d", rframe.OrderNo, rframe.Flag,rframe.Count)
 
             //发送 重传请求
@@ -207,7 +242,7 @@ func (c *UdpConnection) reqCheck() {
 
             gts.Trace("c.lastValidOrderNo:%d",c.lastValidOrderNo)
             gts.Trace("c.lastOrderNo:%d",c.lastOrderNo)
-            gts.Trace("c.reqCache:%d,%d",rframe.OrderNo, rframe.Flag)
+            gts.Trace("c.reqFrame.orderno:%d,flag:%d",rframe.OrderNo, rframe.Flag)
         }
     }
 }
@@ -217,20 +252,21 @@ func (c *UdpConnection) recvFrame(frame *UdpFrame) {
     //取消期望验证包
     if frame.Flag == UDPFRAME_FLAG_NOT_EXISTS {
         if frame.OrderNo != c.lastOrderNo {
-            delete(c.reqCache, frame.OrderNo)
+            c.reqCache.Delete(frame.OrderNo)
         } else {
             return
         }
     } else {
-        delete(c.reqCache, frame.OrderNo)
+        c.reqCache.Delete(frame.OrderNo)
     }
 
-    //lastOrderNo 接受到的最大orderno + 1
-    //lastValidOrderNo, 最后一个有效包的orderno + 1
+    //lastOrderNo 接受到的最大 orderno + 1
+    //lastValidOrderNo, 最后一个有效包的 orderno + 1
 
     //最后一个有效包orderno == frame.OrderNo，就直接发送
     if c.lastValidOrderNo  == frame.OrderNo {
-        gts.Trace("recvFrame1111")
+        gts.Trace("recvFrame1111:%d", frame.OrderNo)
+        frame.ToString()
         c.receiveBytes(frame)
 
         //如果lastorderno 与 lastvalidOrderNo相等，
@@ -239,16 +275,18 @@ func (c *UdpConnection) recvFrame(frame *UdpFrame) {
         //则将lastorderno 等于 orderno
         if c.lastOrderNo < c.lastValidOrderNo {
             c.lastOrderNo = c.lastValidOrderNo
-            c.addReq()
+            c.addReq(10)
             return
         }
 
         //将lastValidorderno 开始的连续recvCache frame直接发送
         for {
-            if fr, ok := c.recvCache[c.lastValidOrderNo];ok {
-                gts.Trace("recvFrame2222")
-                c.receiveBytes(fr)
-                delete(c.recvCache, c.lastValidOrderNo)
+            if fr, ok := c.recvCache.Get(c.lastValidOrderNo);ok {
+                ffr := fr.(*UdpFrame)
+                gts.Trace("recvFrame2222:%d", ffr.OrderNo)
+                ffr.ToString()
+                c.receiveBytes(ffr)
+                c.recvCache.Delete(c.lastValidOrderNo)
 
                 c.lastValidOrderNo += 1
             } else {
@@ -268,7 +306,7 @@ func (c *UdpConnection) recvFrame(frame *UdpFrame) {
 
         if c.lastOrderNo < c.lastValidOrderNo {
             c.lastOrderNo = c.lastValidOrderNo
-            c.addReq()
+            c.addReq(1)
             return
         }
 
@@ -277,7 +315,7 @@ func (c *UdpConnection) recvFrame(frame *UdpFrame) {
             if fr, ok := c.recvCache[c.lastValidOrderNo];ok {
                 gts.Trace("recvFrame3333")
                 c.receiveBytes(fr)
-                delete(c.recvCache, c.lastValidOrderNo)
+                c.recvCache.Delete(c.lastValidOrderNo)
 
                 c.lastValidOrderNo += 1
             } else {
@@ -290,12 +328,12 @@ func (c *UdpConnection) recvFrame(frame *UdpFrame) {
     */
 
     //插入到recvBuffer
-    c.recvCache[frame.OrderNo] = frame
+    c.recvCache.Set(frame.OrderNo, frame)
 
     if c.lastOrderNo <= frame.OrderNo {
         for c.lastOrderNo < frame.OrderNo + 1 {
             c.lastOrderNo += 1
-            c.addReq()
+            c.addReq(1)
         }
         return
     }
@@ -307,14 +345,15 @@ func (c *UdpConnection) sendFrame(frame *UdpFrame) {
 }
 
 
-func (c *UdpConnection) addReq() {
+func (c *UdpConnection) addReq(rate int) {
+    rate = 1
     gts.Trace("addreq:::%d", c.lastOrderNo)
-    c.reqCache[c.lastOrderNo] = &UdpFrame{
+    c.reqCache.Set(c.lastOrderNo, &UdpFrame{
         OrderNo: c.lastOrderNo,
         //Data: make([]byte),
         Flag: UDPFRAME_FLAG_REQ_RETRY,
-        Count: UDP_REQ_CHECK_COUNT,
-    }
+        Count: UDP_REQ_CHECK_COUNT * rate,
+    })
 }
 
 
@@ -343,15 +382,18 @@ func (c *UdpConnection) Connect(addr string) bool {
 
     gts.Trace("dial to udp(%s) is ok.", addr)
 
+    c.conn = conn
     go func() {
-        defer conn.Close()
 
-        c.conn = conn
-
-        buffer := make([]byte, 1024)
         go func() {
+            buffer := make([]byte, 1024)
             for {
-                n, err := c.conn.Read(buffer[0:])
+                defer conn.Close()
+                if c.closeded {
+                    return
+                }
+
+                n, err := conn.Read(buffer[0:])
                 if err == nil {
                     c.ConnReader(buffer[0:n])
                 } else {
@@ -393,6 +435,7 @@ func (c *UdpConnection) receiveBytes(frame *UdpFrame) {
         gts.Trace("c.reqCache:%d,%d",frame.OrderNo, UDPFRAME_FLAG_ACT)
     }
 
+    println("receivebytes:", frame.OrderNo, "\n")
     c.Stream.Write(frame.Data)
     c.receiveCallback(c)
 }
@@ -411,17 +454,18 @@ func (c *UdpConnection) reader() {
                 case UDPFRAME_FLAG_ACT:
                     //收到包确认frame，将相应的sendcache 删除
                     for i := frame.OrderNo; i>1; i-- {
-                        if _, ok := c.sendCache[i];ok {
-                            delete(c.sendCache, i)
+                        if _, ok := c.sendCache.Get(i);ok {
+                            c.sendCache.Delete(i)
                         } else {
                             break
                         }
                     }
-                    gts.Trace("-------------%d--------------",len(c.sendCache))
+                    gts.Trace("-------------%d--------------",c.sendCache.Length())
 
                 case UDPFRAME_FLAG_REQ_RETRY:
-                    if rframe, ok := c.sendCache[frame.OrderNo];ok {
-                        c.sendFrame(rframe)
+                    gts.Trace("----------recv req:%d------------",frame.OrderNo)
+                    if rframe, ok := c.sendCache.Get(frame.OrderNo);ok {
+                        c.sendFrame(rframe.(*UdpFrame))
                     } else {
                         c.sendFrame(&UdpFrame{
                             OrderNo:frame.OrderNo,
@@ -453,6 +497,7 @@ func (c *UdpConnection) ConnSenderClient() {
             //c.conn.Write(bytes)
         case frame := <-c.outFrame:
             gts.Trace("1outframe:orderno:%d, flag:%d, data:%q", frame.OrderNo, frame.Flag, frame.Data)
+            frame.ToString()
             bytes := frame.Pack(c.udpStream.Endianer)
             c.conn.Write(bytes)
 
@@ -479,7 +524,7 @@ func (c *UdpConnection) ConnSenderServer() {
             c.conn.WriteToUDP(bytes, c.userAddr)
 
         case <-c.quitSender:
-            gts.Trace("connsenderserver,quit")
+            gts.Trace("udp connsenderserver,quit")
             c.conn.Close()
 
             c.closeCallback(c.id)
@@ -536,7 +581,7 @@ func (c *UdpConnection) Send(data []byte) {
     }
 
     c.sendFrame(uframe)
-    c.sendCache[uframe.OrderNo] = uframe
+    c.sendCache.Set(uframe.OrderNo, uframe)
 }
 
 

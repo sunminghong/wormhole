@@ -67,7 +67,6 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
     dps = []*RoutePacket{}
 
     //c := ci.(*TcpConnection)
-
     cs := c.Stream
     ilen := cs.Len()
     if ilen == 0 {
@@ -78,41 +77,26 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
     var routeType byte
 
     for {
-        pos := cs.GetPos()
+        //pos := cs.GetPos()
 
         //拆包
         if c.DPSize > 0 {
-            if ilen-pos < c.DPSize {
+            if ilen < c.DPSize {
                 //如果缓存去数据长度不够就退出接着等后续数据
                 return
             }
             dpSize = c.DPSize
             routeType = c.RouteType
+            guin = c.Guin
         } else {
             //Trace("ilen,pos:%d,%d",ilen,pos)
-            if ilen-pos < 9 {
+            if ilen < 9 {
                 return
             }
 
             head,_ := cs.Read(9)
+            ilen = cs.Len()
             d.decrypt(head)
-
-            /*
-            cs.SetPos(-7)
-            m1,_ := cs.ReadByte()
-            m2,_ := cs.ReadByte()
-            //Trace("m1,m2",m1,m2)
-            if m1==mask1 && m2==mask2 {
-                routeType,_ = cs.ReadByte()
-                _dpSize,err := cs.ReadUint32()
-
-                if err != nil {
-                    cs.Reset()
-                    c.DPSize = 0
-                    c.RouteType = 0
-                    return 0,nil
-                }
-            */
 
             if head[0]==mask1 && head[1]==mask2 {
                 routeType = head[2]
@@ -121,11 +105,12 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
                 method := int(d.endianer.Uint16(head[3:5]))
                 if routeType & 1 == 1 {
                     guin = int(d.endianer.Uint32(head[5:]))
-                    if ilen - pos < 4 {
+                    if ilen < 4 {
                         cs.SetPos(-9)
                         return
                     }
                     head2,_ := cs.Read(4)
+                    ilen = cs.Len()
 
                     _dpSize = int(d.endianer.Uint32(head2))
                 } else {
@@ -134,9 +119,9 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
 
                 dpSize = _dpSize
 
-                pos = cs.GetPos()
+                //pos = cs.GetPos()
                 //Trace("ilen,pos,dpSize",ilen,pos,dpSize)
-                if ilen - pos < dpSize {
+                if ilen < dpSize {
                     c.Method = method
                     c.Guin = guin
                     c.DPSize = dpSize
@@ -153,12 +138,14 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
 
         data,size := cs.Read(dpSize)
         if size > 0 {
+            newdata := make([]byte, dpSize)
+            copy(newdata, data)
+
             dp := &RoutePacket{
                 Type:ERouteType(routeType),
                 Guin: guin,
-                Data: data,
+                Data: newdata,
                 }
-
             /*
             if routeType & 1 == 1 {
                 //dp.Guin = int(d.endianer.Uint32(data[dpSize-4:]))
@@ -178,12 +165,18 @@ func (d *RoutePack) Fetch(c *ConnectionBuffer) (n int, dps []*RoutePacket) {
         c.DPSize = 0
         c.RouteType = 0
 
-        iiii := ilen - cs.GetPos()
-        if iiii > 7 {
+        ilen = cs.Len()
+        if ilen >= 9 {
             continue
         }
 
-        if iiii == 0 {
+        /*
+        iiii := ilen - cs.GetPos()
+        if iiii >= 9 {
+            continue
+        }*/
+
+        if ilen == 0 {
             cs.Reset()
         }
 

@@ -132,12 +132,12 @@ func (c *TcpConnection) ConnReader() {
             break
         }
 
-        gts.Trace("tcpConnReader read to buff:%d, % X",bytesRead, buffer[:bytesRead])
+        //gts.Trace("tcpConnReader read to buff:%d, % X",bytesRead, buffer[:bytesRead])
         gts.Trace("tcpConnReader read to buff:%q",buffer[:bytesRead])
         c.Stream.Write(buffer[0:bytesRead])
+        gts.Trace("\n%q", c.Stream.Bytes())
         c.receiveCallback(c)
 
-        //gts.Trace("tpool ConnReader Buff:%d", len(c.stream.Bytes()))
 
         //n, dps := c.routePack.Fetch(c)
         //gts.Trace("fetch message number", n)

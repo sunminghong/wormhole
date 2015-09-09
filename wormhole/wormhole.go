@@ -12,7 +12,7 @@ package wormhole
 
 
 import (
-    "reflect"
+    //"reflect"
 
     gts "github.com/sunminghong/gotools"
 )
@@ -38,6 +38,8 @@ type Wormhole struct {
     //receivePacketCallback ReceivePacketFunc
 
     closeCallback CommonCallbackFunc
+
+    closeded bool
 }
 
 
@@ -48,8 +50,9 @@ func NewWormhole(guin int, wormholes IWormholeManager, routepack IRoutePack) *Wo
         guin:           guin,
         fromId:         0,
         fromType:       EWORMHOLE_TYPE_CLIENT,
-        wormholes:        wormholes,
+        wormholes:      wormholes,
         routePack:      routepack,
+        closeded:       false,
     }
 
     return wh
@@ -180,15 +183,19 @@ func (wh *Wormhole) dataClosed(id int) {
 func (wh *Wormhole) ctrlClosed(id int) {
     gts.Trace("ctrlClosed")
 
+    wh.closeded = true
+
     if wh.dataConnection != nil {
         wh.dataConnection.Close()
+    } else {
+        wh.dataConnection = nil
     }
     if wh.ctrlConnection != nil {
         wh.ctrlConnection.Close()
+    } else {
+        wh.ctrlConnection = nil
     }
 
-    wh.dataConnection = nil
-    wh.ctrlConnection = nil
     wh.sendConnection = nil
 
     gts.Trace("//////////////////////////////////////////")
@@ -204,21 +211,27 @@ func (wh *Wormhole) SendPacket(packet *RoutePacket) {
 
 
 func (wh *Wormhole) SendRaw(bytes []byte) {
+    if wh.closeded {
+        return
+    }
+
     if len(bytes) <= 1024 {
-        gts.Trace("send send protocol type:%d,%d,%d",wh.GetGuin(), wh.ctrlConnection.GetType(), wh.sendConnection.GetProtocolType())
+    //if len(bytes) < 0 {
+        gts.Trace("send send protocol type:%d,%d,%d",wh.GetGuin(), wh.sendConnection.GetType(), wh.sendConnection.GetProtocolType())
         wh.sendConnection.Send(bytes)
 
     } else {
-        gts.Trace("send ctrl protocol type:",wh.ctrlConnection)
+        //gts.Trace("send ctrl protocol type:",wh.ctrlConnection)
         gts.Trace("send ctrl protocol type:%d,%d,%d",wh.GetGuin(), wh.ctrlConnection.GetType(), wh.ctrlConnection.GetProtocolType())
+        gts.Trace("send ctrl:%q",bytes)
 
-        v := reflect.ValueOf(wh.ctrlConnection)
-        t := reflect.TypeOf(wh.ctrlConnection)
+        //v := reflect.ValueOf(wh.ctrlConnection)
+        //t := reflect.TypeOf(wh.ctrlConnection)
 
-        gts.Trace("Type:", t)
-        gts.Trace("Value:", v)
-        gts.Trace("Kind:", t.Kind())
-        gts.Trace("Kind:", wh.ctrlConnection.GetId())
+        //gts.Trace("Type:", t)
+        //gts.Trace("Value:", v)
+        //gts.Trace("Kind:", t.Kind())
+        //gts.Trace("Kind:", wh.ctrlConnection.GetId())
 
         wh.ctrlConnection.Send(bytes)
     }
@@ -232,6 +245,7 @@ func (wh *Wormhole) Send(guin int, method int, data []byte) {
         Method: method,
         Data:   data,
     }
+    gts.Trace("fromType:%d, %d", wh.fromType, EWORMHOLE_TYPE_AGENT)
     if wh.fromType == EWORMHOLE_TYPE_AGENT {
         packet.Type = EPACKET_TYPE_DELAY
     }

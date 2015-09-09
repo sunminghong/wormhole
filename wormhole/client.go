@@ -114,10 +114,11 @@ func (c *Client) receiveTcpPackets(conn IConnection, dps []*RoutePacket) {
             gts.Trace("client receive tcp hello:%q", dp)
             c.guin = dp.Guin
             c.initWormhole(dp, conn)
-            c.wormhole.Init()
 
             fromType := EWormholeType(dp.Data[0])
             c.wormhole.SetFromType(fromType)
+
+            c.wormhole.Init()
 
             if len(dp.Data) > 1 {
                 c.udpAddr = string(dp.Data[1:])

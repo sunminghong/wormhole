@@ -46,18 +46,15 @@ func NewClientWormhole(guin int, manager wormhole.IWormholeManager, routepack wo
 
 func (wh *ClientWormhole) Init() {
     gts.Trace("clientwormhole is init")
-
-    //wh.Send(0, []byte("this message is from player 1 !"))
-    //wh.Send(0, []byte("this message is from player 2 !"))
-    //wh.Send(0, []byte("this message is from player 3 !"))
-    //wh.Send(0, []byte("this message is from player 4 !"))
-    //wh.Send(0, []byte("this message is from player 5 !"))
+    wh.SetFromType(wormhole.EWORMHOLE_TYPE_CLIENT)
 }
+
 
 func (wh *ClientWormhole) ProcessPackets(dps []*wormhole.RoutePacket) {
     //gts.Trace("clientwormhole processpacket receive %d route packets",len(dps))
     for _, dp := range dps {
-        gts.Trace(gutils.ByteString(dp.Data))
+        gts.Debug(gutils.ByteString(dp.Data))
+        //println(gutils.ByteString(dp.Data))
         //gts.Trace("%q", dp)
     }
 
@@ -86,6 +83,12 @@ func main() {
 
     section := "Default"
 
+    logconf, err := c.GetString(section,"logConfigFile")
+    if err != nil {
+        logconf = ""
+    }
+    gts.SetLogger(&logconf)
+
     clientTcpAddr, err := c.GetString(section, "clientTcpAddr")
     if err != nil {
         gts.Error(err.Error())
@@ -102,7 +105,7 @@ func main() {
     routepack := wormhole.NewRoutePack(endianer)
     var cwormholes wormhole.IWormholeManager
 
-    client = wormhole.NewClient(clientTcpAddr, routepack, cwormholes,NewClientWormhole, wormhole.EWORMHOLE_TYPE_CLIENT)
+    client = wormhole.NewClient(clientTcpAddr, routepack, cwormholes, NewClientWormhole, wormhole.EWORMHOLE_TYPE_CLIENT)
     client.Connect()
 
     gts.Info("----------------client connect to %s,%s-----------------",clientTcpAddr)
@@ -123,8 +126,8 @@ func exit(quit chan bool) {
             return
         } else {
             wh := client.GetWormhole()
-            for ii:=1;ii <= 10000; ii++ {
-                wh.Send(0, 10 , []byte(" this message is from player " + strconv.Itoa(ii) + " !"))
+            for ii := 10001;ii <= 20000; ii ++ {
+                wh.Send(0, 10 , []byte("this message is from player " + strconv.Itoa(ii) + " !"))
             }
         }
     }

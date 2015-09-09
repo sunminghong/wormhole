@@ -17,7 +17,6 @@ import (
 
 type WormholeManager struct {
     wormholes map[int]IWormhole
-
     wmlock *sync.RWMutex
 
     broadcastChan chan *RoutePacket

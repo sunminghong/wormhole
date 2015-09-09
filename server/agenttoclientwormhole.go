@@ -42,16 +42,11 @@ func NewAgentToClientWormhole(guin int, manager IWormholeManager, routepack IRou
 func (acw *AgentToClientWormhole) closed(guin int) {
     gts.Trace("agent to client closed0:%d",guin)
     acw.GetManager().Remove(guin)
-
-    //if server, ok := acw.GetManager().GetServer().(*Agent);ok {
-        //print("wormholemanager remove 0")
-        //server.ClientWormholes.Remove(guin)
-    //}
 }
 
 
 func (acw *AgentToClientWormhole) Init() {
-    //gts.Trace("agenttoclient wormhole init()")
+    gts.Trace("agenttoclient wormhole init()")
 }
 
 
@@ -59,13 +54,13 @@ func (acw *AgentToClientWormhole) ProcessPackets(dps []*RoutePacket) {
     gts.Trace("agenttoclientwormhole processpackets receive %d packets", len(dps))
 
     for _,dp := range dps {
-        gts.Trace("%q", dp)
+        gts.Debug("%q", dp)
         gts.Trace("guin:",acw.GetGuin())
 
         dp.Guin = acw.GetGuin()
         dp.Type = dp.Type | 1
 
-        acw.SendPacket(dp)
+        //acw.SendPacket(dp)
 
         //转发给logic server
         //根据guin进行hash运算非配到相应的logic server
