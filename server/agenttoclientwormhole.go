@@ -60,7 +60,7 @@ func (acw *AgentToClientWormhole) ProcessPackets(dps []*RoutePacket) {
         dp.Guin = acw.GetGuin()
         dp.Type = dp.Type | 1
 
-        //acw.SendPacket(dp)
+        acw.SendPacket(dp)
 
         //转发给logic server
         //根据guin进行hash运算非配到相应的logic server

@@ -297,42 +297,13 @@ func (c *UdpConnection) recvFrame(frame *UdpFrame) {
         return
     }
 
-    /*
-    //最后一个有效包orderno == frame.OrderNo，就直接发送
-    if c.lastValidOrderNo == frame.OrderNo {
-        gts.Trace("recvFrame2222")
-        c.receiveBytes(frame)
-        c.lastValidOrderNo += 1
-
-        if c.lastOrderNo < c.lastValidOrderNo {
-            c.lastOrderNo = c.lastValidOrderNo
-            c.addReq(1)
-            return
-        }
-
-        //将lastValidorderno 开始的连续recvCache frame直接发送
-        for {
-            if fr, ok := c.recvCache[c.lastValidOrderNo];ok {
-                gts.Trace("recvFrame3333")
-                c.receiveBytes(fr)
-                c.recvCache.Delete(c.lastValidOrderNo)
-
-                c.lastValidOrderNo += 1
-            } else {
-                break
-            }
-        }
-
-        return
-    }
-    */
-
     //插入到recvBuffer
     c.recvCache.Set(frame.OrderNo, frame)
 
     if c.lastOrderNo <= frame.OrderNo {
         for c.lastOrderNo < frame.OrderNo + 1 {
             c.lastOrderNo += 1
+            gts.Trace("recvFrame3333:%d", frame.OrderNo)
             c.addReq(1)
         }
         return
@@ -520,6 +491,7 @@ func (c *UdpConnection) ConnSenderServer() {
             ////c.routePack.PackWrite(c.conn.Write,dp)
         case frame := <-c.outFrame:
             gts.Trace("2outframe:orderno:%d, flag:%d, data:%q", frame.OrderNo, frame.Flag, frame.Data)
+            frame.ToString()
             bytes := frame.Pack(c.udpStream.Endianer)
             c.conn.WriteToUDP(bytes, c.userAddr)
 
